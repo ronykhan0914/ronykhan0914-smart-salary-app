@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>স্মার্ট স্যালারি</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;800&family=Noto+Serif+Bengali:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080d18;--card:#111b2d;--line:#263752;--gold:#f6c85f;--mint:#62e6c2;--rose:#ff718d;--tx:#f4f7ff;--mt:#9aaac2;
+padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{background:radial-gradient(circle at 20% 0%,#1d1734,transparent 55%),var(--bg);color:var(--tx);font-family:'Noto Sans Bengali',system-ui,sans-serif;overflow-x:hidden}
+.hidden{display:none!important}
+.mint{color:var(--mint)}.rose{color:var(--rose)}.muted{color:var(--mt);font-size:.85rem}
+#splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:50}
+.sname{font-size:clamp(1.6rem,6vw,2.6rem);font-weight:800;background:linear-gradient(90deg,var(--gold),var(--mint),var(--rose));-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;padding:0 16px;animation:sIn 4.6s forwards}
+@keyframes sIn{0%{opacity:0;transform:translateY(40px) scale(.9);filter:blur(12px)}15%{opacity:1;transform:none;filter:blur(0)}75%{opacity:1;transform:none;filter:blur(0)}100%{opacity:0;transform:scale(.35);filter:blur(10px)}}
+#login,#setup{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:16px;transition:all .9s cubic-bezier(.7,0,.3,1)}
+#login.vanish{opacity:0;filter:blur(18px);transform:scale(1.15);letter-spacing:.4em}
+.brand{font-size:1.3rem;font-weight:800;letter-spacing:.14em;color:var(--gold);margin-bottom:8px;text-align:center}
+.lbox{width:100%;max-width:360px;background:linear-gradient(145deg,#eef0f7,#d7dce8);color:#16161f;border-radius:34px;padding:16px 24px;box-shadow:0 20px 50px rgba(0,0,0,.5),inset 0 1px 0 #fff}
+.lbox label{font-size:.8rem;font-weight:600;opacity:.7}
+.lbox input,.lbox select{width:100%;background:transparent;border:0;border-bottom:2px solid #16161f22;padding:10px 0;font:inherit;font-size:1rem;outline:none;color:#16161f}
+.lbox select{background:#eef0f7}
+.lbox input:focus{border-color:#7b5cff}
+.pwrow{display:flex;align-items:center;gap:8px}.pwrow input{flex:1}
+.eye{background:none;border:0;cursor:pointer;font-size:1.1rem}
+.loginbtn{width:100%;max-width:360px;padding:16px;border-radius:999px;border:0;font:inherit;font-weight:800;font-size:1.05rem;color:#111;background:linear-gradient(90deg,var(--gold),var(--mint));box-shadow:0 0 30px rgba(246,201,72,.35);cursor:pointer;transition:transform .2s}
+.loginbtn:active{transform:scale(.97)}
+.btn2{width:100%;padding:12px;border-radius:999px;border:1px solid var(--gold);background:none;color:var(--gold);font:inherit;font-weight:700;cursor:pointer;margin-top:10px}
+.forgot{color:var(--mt);font-size:.9rem;cursor:pointer;background:none;border:0;font:inherit;text-decoration:underline}
+.hint{max-width:360px;text-align:center;font-size:.9rem;color:var(--mint);background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:12px;filter:blur(6px);transition:filter .4s;cursor:pointer}
+.hint.open{filter:none}
+.err{color:var(--rose);font-size:.9rem;min-height:1.2em;text-align:center;max-width:360px}
+.shake{animation:sh .4s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+#app{padding:16px 16px 104px;max-width:560px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.avatar{width:46px;height:46px;border-radius:50%;background:conic-gradient(var(--gold),var(--rose),var(--mint),var(--gold));display:grid;place-items:center;color:#111;font-weight:800;cursor:pointer;border:0;font-size:1rem;font-family:inherit;box-shadow:0 0 18px rgba(246,201,72,.3)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px;margin-bottom:14px;transition:transform .25s,border-color .25s}
+.card:hover{transform:translateY(-2px);border-color:#3a3a4c}
+.card h4{margin-bottom:10px;font-size:1rem}
+.hero{background:linear-gradient(135deg,#221c0c,#0c1d18);border-color:#3a3320}
+.big{font-size:2rem;font-weight:800;color:var(--gold)}
+.row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.94rem}
+.row:last-child{border:0}
+.sub{font-size:.8rem;color:var(--mt);margin:12px 0 2px;text-transform:uppercase;letter-spacing:.08em}
+.chip{padding:6px 12px;border-radius:999px;background:#1d1d28;font-size:.8rem;display:inline-block;margin:0 6px 6px 0}
+select,input.f{width:100%;background:#0c0c12;color:var(--tx);border:1px solid var(--line);border-radius:14px;padding:12px;font:inherit;margin-top:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lbl{font-size:.8rem;color:var(--mt)}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+td,th{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--mt);font-weight:600}
+.scroll{overflow-x:auto}
+.sb{background:none;border:1px solid var(--line);color:var(--tx);border-radius:10px;padding:3px 8px;font:inherit;font-size:.75rem;cursor:pointer;margin-left:4px}
+.sb.d{border-color:var(--rose);color:var(--rose)}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;gap:6px;background:#0b0b10ee;backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px));z-index:20}
+nav button{flex:1;background:none;border:0;color:var(--mt);font:inherit;font-size:.84rem;padding:10px 6px;border-radius:14px;cursor:pointer;transition:all .3s}
+nav button.on{color:#111;background:linear-gradient(90deg,var(--gold),var(--mint));font-weight:700}
+.page{animation:pg .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes pg{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.sheet{position:fixed;inset:0;background:#000b;display:flex;align-items:flex-end;z-index:30}
+.acc{display:flex;gap:12px;align-items:center;padding:14px;border-radius:18px;background:#1b1b26;margin-top:10px;cursor:pointer}
+.slip{background:#fff;color:#111;border-radius:14px;padding:22px;font-size:.86rem}
+.slip h3{text-align:center;color:#0b3d91;font-size:1.1rem}
+.slip .rw{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dotted #bbb}
+.slip .tot{font-weight:800;font-size:1rem;border-top:2px solid #111;border-bottom:2px solid #111;margin-top:8px;padding:8px 0}
+.slip .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.slip .sig{display:flex;justify-content:space-between;margin-top:30px;font-size:.8rem}
+@media print{body *{visibility:hidden}#slipBox,#slipBox *{visibility:visible}#slipBox{position:absolute;left:0;top:0;width:100%;background:#fff;color:#000;border-radius:0}.noprint{display:none!important}}
+.tabs{display:flex;gap:8px;width:100%;max-width:360px}
+.tab{flex:1;padding:12px 8px;border-radius:999px;border:1px solid var(--line);background:#1b1b26;color:var(--mt);font:inherit;font-weight:700;cursor:pointer;font-size:.9rem}
+.tab.on{background:linear-gradient(90deg,var(--gold),var(--mint));color:#111;border:0}
+
+/* ===== PREMIUM DARK THEME (design pass) ===== */
+body{background:#050507}
+body::before{content:"";position:fixed;inset:-25%;background:conic-gradient(from 0deg,rgba(246,201,72,.16),rgba(110,243,196,.10),rgba(255,93,143,.10),rgba(122,167,255,.10),rgba(246,201,72,.16));filter:blur(90px);animation:aurora 26s linear infinite;z-index:-1;pointer-events:none;opacity:.9}
+@keyframes aurora{to{transform:rotate(360deg)}}
+.card{background:linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.015)),#0e0e14;backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.07);border-radius:28px;box-shadow:0 18px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);animation:rise .6s cubic-bezier(.2,.8,.2,1) backwards}
+.card:nth-child(2){animation-delay:.05s}.card:nth-child(3){animation-delay:.1s}.card:nth-child(4){animation-delay:.15s}.card:nth-child(5){animation-delay:.2s}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.card:hover{transform:translateY(-3px);border-color:rgba(246,201,72,.25);box-shadow:0 22px 50px rgba(0,0,0,.55),0 0 0 1px rgba(246,201,72,.08)}
+.card h4{font-weight:800;letter-spacing:.01em;display:flex;align-items:center;gap:8px}
+.card h4::before{content:"";width:6px;height:16px;border-radius:4px;background:linear-gradient(var(--gold),var(--mint));flex:none}
+.hero{background:radial-gradient(120% 120% at 100% 0%,rgba(246,201,72,.22),transparent 45%),radial-gradient(120% 120% at 0% 100%,rgba(110,243,196,.16),transparent 50%),linear-gradient(160deg,#15130b,#06110d);border:1px solid rgba(246,201,72,.2);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;width:220px;height:220px;right:-70px;top:-70px;border-radius:50%;border:1px solid rgba(246,201,72,.25);box-shadow:0 0 0 30px rgba(246,201,72,.04),0 0 0 60px rgba(246,201,72,.03);animation:pulse 4s ease-in-out infinite;pointer-events:none}
+@keyframes pulse{50%{transform:scale(1.07)}}
+.big{font-size:2.5rem;letter-spacing:-.02em;background:linear-gradient(90deg,#fff3c4,var(--gold) 40%,var(--mint));-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.chip{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px)}
+.row{border-bottom:1px solid rgba(255,255,255,.06)}
+.sub{color:#a7a7b8}
+table tr:hover td{background:rgba(255,255,255,.025)}
+select,input.f{background:rgba(10,10,15,.8);border:1px solid rgba(255,255,255,.08);border-radius:16px;transition:border-color .25s,box-shadow .25s}
+select:focus,input.f:focus{outline:none;border-color:rgba(246,201,72,.5);box-shadow:0 0 0 3px rgba(246,201,72,.12)}
+nav{left:10px;right:10px;bottom:0;background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.07);border-bottom:0;border-radius:26px 26px 0 0;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+nav button{position:relative;transition:transform .25s cubic-bezier(.2,.8,.2,1),background .3s,color .3s,box-shadow .3s}
+nav button:active{transform:scale(.92)}
+nav button.on{box-shadow:0 8px 24px rgba(246,201,72,.35)}
+.avatar{transition:transform .3s}.avatar:hover{transform:rotate(12deg) scale(1.06)}
+.loginbtn{position:relative;overflow:hidden;letter-spacing:.02em;background:linear-gradient(100deg,var(--gold) 0%,#fff3c4 45%,var(--mint) 90%);background-size:200% 100%;animation:none}
+@keyframes shine{to{background-position:200% 0}}
+.lbox{background:linear-gradient(145deg,#f4f6fc,#dde2ee);box-shadow:0 24px 60px rgba(0,0,0,.6),inset 0 1px 0 #fff}
+.lbox input:focus,.lbox select:focus{border-color:#7b5cff;box-shadow:0 2px 0 #7b5cff}
+.tab{transition:all .3s}
+.brand{background:linear-gradient(90deg,var(--gold),var(--mint));-webkit-background-clip:text;background-clip:text;color:transparent;font-size:1.5rem}
+.btn2{border-color:rgba(246,201,72,.5);transition:all .3s}.btn2:hover{background:rgba(246,201,72,.08)}
+.acc{border:1px solid rgba(255,255,255,.06);transition:all .3s}.acc:hover{border-color:rgba(246,201,72,.3);transform:translateX(4px)}
+.sheet>div{box-shadow:0 -20px 60px rgba(0,0,0,.6)}
+#splash{background:radial-gradient(circle at 50% 40%,#1d1734,#050507 70%)}
+.sname{font-size:clamp(1.8rem,7vw,3rem);filter:drop-shadow(0 0 24px rgba(246,201,72,.3))}
+.page{animation:pg .18s ease-out}
+.rip{position:absolute;border-radius:50%;background:rgba(255,255,255,.28);transform:scale(0);animation:rp .6s ease-out forwards;pointer-events:none}
+@keyframes rp{to{transform:scale(1.7);opacity:0}}
+.slip{box-shadow:0 30px 60px rgba(0,0,0,.5)}
+
+/* ===== v7 ===== */
+#app{padding-bottom:40px}
+nav{position:sticky!important;top:calc(8px + env(safe-area-inset-top,0px));bottom:auto!important;left:auto!important;right:auto!important;margin:0 0 16px;border-radius:24px!important;border:1px solid rgba(255,255,255,.08)!important;padding:6px!important;background:rgba(10,10,15,.82)!important;backdrop-filter:none;box-shadow:0 8px 18px rgba(0,0,0,.32);z-index:25}
+nav button{padding:11px 6px!important;font-size:.9rem!important}
+nav button.on{background:linear-gradient(100deg,var(--gold),var(--mint))!important;color:#111!important}
+.slip.t-modern{background:linear-gradient(180deg,#eef4ff,#ffffff);border-top:8px solid #2b59c3;border-radius:22px}
+.slip.t-modern h3{color:#2b59c3;letter-spacing:.04em}
+.slip.t-modern .rw{border-bottom-color:#d7e0f5}
+.slip.t-minimal{border:1px solid #d9d9d9;border-radius:0;box-shadow:none}
+.slip.t-minimal h3{color:#111;font-weight:500;letter-spacing:.22em;text-transform:uppercase}
+.slip.t-minimal .rw{border-bottom:1px solid #eee}
+.slip.t-dark{background:#0d0d12;color:#f4f4f8;border:1px solid #2a2a36}
+.slip.t-dark h3{color:#f7c948}
+.slip.t-dark .rw{border-bottom-color:#2a2a36}
+.slip.t-dark .tot{border-color:#f7c948}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #slipBox.t-dark{background:#0d0d12!important;color:#f4f4f8!important}
+  #slipBox.t-modern{background:#f5f8ff!important}
+  #slipBox.t-minimal{border:1px solid #d9d9d9}
+}
+.iline{position:absolute;left:0;right:0;text-align:center;padding:0 20px;opacity:0;transform:translateY(60px);filter:blur(8px);transition:all 1.6s cubic-bezier(.2,.8,.2,1);line-height:1.8}
+.iline.show{opacity:1;transform:none;filter:none}
+.sal{top:14vh;font-family:'Noto Serif Bengali',serif;font-weight:700;font-size:clamp(1.15rem,4.6vw,1.7rem)}
+.bis{top:42vh;font-family:'Noto Serif Bengali',serif;font-weight:700;font-size:clamp(1.05rem,4vw,1.45rem)}
+.nm{bottom:18vh;font-weight:800;font-size:clamp(1.6rem,6.5vw,2.7rem)}
+.grad{background:linear-gradient(90deg,#f7c948,#6ef3c4,#ff5d8f,#7aa7ff,#f7c948);background-size:300% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gshift 6s linear infinite}
+@keyframes gshift{to{background-position:300% center}}
+.starthint{position:absolute;bottom:2.5vh;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:999px;border:1px solid rgba(246,201,72,.4);color:#f7c948;animation:pulse2 2s ease-in-out infinite;white-space:nowrap}
+@keyframes pulse2{50%{box-shadow:0 0 24px rgba(246,201,72,.35)}}
+/* সম্পাদকীয় স্বাক্ষর: অন্য সব পরিচিতিমূলক লেখার পরেই দেখানো হয় */
+.owner-credit{position:absolute;left:10px;right:10px;bottom:10.5vh;text-align:center;opacity:0;visibility:hidden;transform:translateY(18px);filter:blur(7px);transition:opacity 1.15s ease,transform 1.15s ease,filter 1.15s ease;pointer-events:none}
+.owner-credit.show{opacity:1;visibility:visible;transform:none;filter:blur(0)}
+.owner-role{display:block;margin-bottom:1px;font-family:'Noto Sans Bengali',sans-serif;font-size:clamp(.72rem,2.8vw,.9rem);font-weight:600;letter-spacing:.16em;color:#c9f5ff;text-shadow:0 0 12px rgba(125,211,252,.5)}
+.owner-signature{display:block;font-family:'Noto Serif Bengali','Noto Sans Bengali',serif;font-size:clamp(1.18rem,5.2vw,1.8rem);font-weight:800;letter-spacing:.015em;line-height:1.55;background:linear-gradient(100deg,#ff7777 0%,#ffb4a2 18%,#eaffff 38%,#b8ffe0 58%,#39e58a 78%,#eaffff 100%);background-size:240% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(181,255,232,.35)) drop-shadow(0 0 16px rgba(255,105,105,.2));animation:none}
+@keyframes signatureGradient{to{background-position:240% center}}
+@media(max-height:620px){.owner-credit{bottom:10vh}.owner-signature{font-size:clamp(1rem,4.4vw,1.35rem)}.nm{bottom:25vh}.starthint,.enterbtn{bottom:1.5vh}}
+.enterbtn{position:absolute;bottom:2.5vh;left:50%;transform:translateX(-50%);width:auto;padding:14px 36px}
+nav{position:sticky!important;top:10px;left:auto!important;right:auto!important;bottom:auto!important;display:grid!important;grid-template-columns:repeat(3,1fr);gap:10px;background:none!important;backdrop-filter:none!important;border:0!important;padding:0!important;margin:0 0 16px;z-index:20}
+nav button{padding:14px 6px!important;border-radius:20px!important;color:#111!important;font-weight:800;font-size:.92rem;opacity:.78;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+nav button.on{opacity:1;transform:translateY(-2px);box-shadow:0 12px 30px rgba(246,201,72,.35)!important}
+nav button[data-p=dash]{background:linear-gradient(135deg,#f7c948,#6ef3c4)!important}
+nav button[data-p=input]{background:linear-gradient(135deg,#6ef3c4,#7aa7ff)!important}
+nav button[data-p=hist]{background:linear-gradient(135deg,#ff5d8f,#f7c948)!important}
+nav .ic{display:block;font-size:1.35rem;margin-bottom:2px;animation:none}
+@keyframes bob{50%{transform:translateY(-3px)}}
+.fire-nav{justify-items:center}
+nav{justify-content:center}
+nav button{width:76px!important;height:76px!important;border-radius:50%!important;padding:0!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;font-size:.72rem!important;line-height:1.2;position:relative;overflow:visible!important}
+nav button .ic{font-size:1.5rem;margin:0}
+nav button[data-p=dash],nav button[data-p=input],nav button[data-p=hist]{background:radial-gradient(circle at 30% 25%,#ffd27a,#c9571a 70%,#5a1c08)!important}
+nav button.on{animation:none;box-shadow:0 0 18px #ff7a18,0 0 38px #ff3d00,0 0 60px rgba(255,200,60,.5)!important;opacity:1!important;transform:translateY(-3px) scale(1.06)!important}
+nav button.on::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid #ffb347;opacity:.7;animation:none}
+@keyframes flame{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35) saturate(1.2)}}
+@keyframes ring{from{transform:scale(.9);opacity:.9}to{transform:scale(1.25);opacity:0}}
+.lbox:focus-within{box-shadow:0 0 0 2px #ff7a18,0 0 28px rgba(255,122,24,.55),inset 0 1px 0 #fff}
+/* Dynamic home, linked identity and scroll-aware navigation */
+#nav{transition:transform .16s ease,opacity .14s ease}
+#nav.nav-hidden{transform:translateY(calc(-100% - 18px))!important;opacity:0;pointer-events:none}
+.profile-identity{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:5px 8px;border-radius:16px;max-width:calc(100vw - 110px)}
+.profile-identity strong{font-size:1rem;line-height:1.45;white-space:normal;background:linear-gradient(100deg,#fff,#b7f7e7 48%,#ffe4a8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.profile-identity small{color:var(--mt);font-size:.78rem}
+.identity-card{width:100%;display:flex;gap:14px;align-items:center;text-align:left;border:1px solid rgba(255,255,255,.12);cursor:pointer;color:inherit;font:inherit}
+.identity-card:active{transform:scale(.99)}
+.drive-status{font-size:.82rem;color:#b9f5dc;padding:8px 10px;background:rgba(98,230,194,.08);border:1px solid rgba(98,230,194,.18);border-radius:12px;margin:8px 0}
+@media(prefers-reduced-motion:reduce){#nav,.card,.page{animation:none!important;transition:none!important}}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07070b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="স্যালারি">
+<link rel="icon" type="image/png" href="/Ronykhan_Salaryapp_launcher_2.png">
+<link rel="apple-touch-icon" href="/Ronykhan_Salaryapp_launcher_2.png">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="./api-config.js"></script>
+</head>
+<body>
+
+<audio id="bgm" src="./allahu-akbar.mp3" preload="none" playsinline></audio>
+<div id="splash" onclick="startIntro()">
+  <div class="iline sal grad" id="ln1">আসসালামু আলাইকুম ওয়ারাহমাতুল্লাহি ওয়াবারাকাতুহু</div>
+  <div class="iline bis grad" id="ln2">বিসমিল্লাহির রাহমানির রাহিম</div>
+  <div class="iline nm grad" id="ln3">আপনার বেতনের হিসাব, সহজে ও নিরাপদে</div>
+  <div class="owner-credit" id="ownerCredit" aria-label="সম্পাদক: আব্দুর রহিম খান (রনি)"><span class="owner-role">সম্পাদক</span><span class="owner-signature">আব্দুর রহিম খান (রনি)</span></div>
+  <div id="startHint" class="starthint">🔊 শুরু করতে স্পর্শ করুন</div>
+</div>
+
+<section id="login" class="hidden">
+  <div class="brand">EMPLOYEE LOG IN</div>
+  <div class="tabs"><button id="tL" class="tab" onclick="authTab('l')">লগইন</button><button id="tR" class="tab" onclick="authTab('r')">নতুন হিসাব খুলুন</button></div>
+  <div id="authBox" style="width:100%;display:flex;flex-direction:column;gap:14px;align-items:center"></div>
+</section>
+
+
+
+<section id="app" class="hidden">
+  <nav id="nav" class="hidden">
+    <button data-p="dash" onclick="show('dash')">🏠 হোম</button>
+    <button data-p="input" onclick="show('input')">✏️ ইনপুট</button>
+    <button data-p="hist" onclick="show('hist')">📈 ইতিহাস</button>
+  </nav>
+    <header>
+    <div class="profile-identity"><strong>স্মার্ট স্যালারি</strong><small>আপনার ব্যক্তিগত বেতন ব্যবস্থাপনা</small></div>
+    <button class="avatar" id="av" onclick="openSwitch()" title="একাউন্ট পরিবর্তন"></button>
+  </header>
+  <main id="main"></main>
+</section>
+
+
+<div id="sheet" class="sheet hidden" onclick="this.classList.add('hidden')"></div>
+
+<script>
+let lastNavY=0,navScrollBound=false;
+function bindNavScroll(){if(navScrollBound)return;navScrollBound=true;window.addEventListener('scroll',()=>{const nav=$('#nav');if(!nav||$('#app').classList.contains('hidden'))return;const y=window.scrollY||0,delta=y-lastNavY;if(y<50||delta<-5)nav.classList.remove('nav-hidden');else if(delta>7&&y>90)nav.classList.add('nav-hidden');lastNavY=y},{passive:true})}
+window.addEventListener('load',bindNavScroll);
+/* ===== DATA ===== */
+/* hist: Excel থেকে প্রাপ্ত টাকা [বছর, মাস, পেয়েছি] — ইতিহাস পেজ থেকে যেকোনো মাস সংশোধন করা যাবে
+   detail: অক্টোবর ২০২৬ পে স্লিপের চূড়ান্ত বিস্তারিত */
+const USERS={};
+const LBL={basic:'মূল বেতন',house:'বাড়ি ভাড়া ভাতা',medical:'চিকিৎসা ভাতা',travel:'যাতায়াত ভাতা',food:'খাদ্য ভাতা'};
+const MONTHS=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const DAY_ST=['কাজ','ছুটি','সরকারি ছুটি','অনুপস্থিত','সাপ্তাহিক ছুটি'];
+const DAY_SH=['A','B','Off','General'];
+const DAY_OT=['নেই','সাধারণ (General)','শুক্রবার','ছুটির দিন'];
+const DAY_HR=[0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10.5,11,11.5,12];
+
+/* ===== HELPERS ===== */
+let cur=null,selIdx=0,pre=null,vY=new Date().getFullYear(),vM=new Date().getMonth()+1;
+const $=s=>document.querySelector(s);
+const bn=n=>Number(n).toLocaleString('bn-BD',{maximumFractionDigits:2});
+const tk=n=>'৳'+bn(n);
+const pad=n=>String(n).padStart(2,'0');
+const lab=r=>`${MONTHS[r.m-1]} ${bn(r.y)}`;
+const rw=(l,v,c='')=>`<div class="row"><span>${l}</span><span class="${c}">${v}</span></div>`;
+const opt=(arr,sel,fmt=x=>x)=>arr.map((x,i)=>`<option value="${x}" ${String(x)===String(sel)?'selected':''}>${fmt(x)}</option>`).join('');
+function custom(){try{return JSON.parse(localStorage.getItem('accts'))||{}}catch(e){return{}}}
+function getU(k){const b=USERS[k]||custom()[k];if(!b)return b;const o=ovr(k);return o?{...b,e:o.e,adj:o.adj}:b}
+function ovr(k){try{return JSON.parse(localStorage.getItem('sal_'+k))}catch(e){return null}}
+function allKeys(){return [...Object.keys(USERS),...Object.keys(custom())]}
+function allEntries(){return allKeys().map(k=>[k,getU(k)])}
+function creds(k){try{const s=JSON.parse(localStorage.getItem('cred_'+k));if(s&&s.user&&s.pw)return s}catch(e){}const u=getU(k);return{user:u.user,pw:u.pw}}
+function store(key){try{return JSON.parse(localStorage.getItem(key))||[]}catch(e){return[]}}
+function put(key,v){try{localStorage.setItem(key,JSON.stringify(v));return true}catch(e){return false}}
+const saved=k=>store('rec_'+k);
+const days=(y,m)=>new Date(y,m,0).getDate();
+function calcR(k,r){
+  if(r.bonus===undefined)return{pay:r.pay};
+  const u=getU(k),sal=Object.values(u.e).reduce((a,b)=>a+b,0)+u.adj;
+  const add=r.bonus+r.ot+r.shift,ded=r.fund+r.transport;
+  return{sal,add,ded,pay:sal+add-ded};
+}
+function recs(k){
+  const map={},u=getU(k);
+  u.hist.forEach(([y,m,p])=>map[y*100+m]={y,m,pay:p,src:'excel'});
+  if(u.detail)map[u.detail.y*100+u.detail.m]={...u.detail,...calcR(k,u.detail),src:'slip'};
+  saved(k).forEach(r=>map[r.y*100+r.m]={...r,...calcR(k,r),src:'saved'});
+  return Object.values(map).sort((a,b)=>(a.y*100+a.m)-(b.y*100+b.m));
+}
+function otRate(k,r){return r.otRate||getU(k).e.basic/208*2}
+
+/* ===== LOGIN / SETUP ===== */
+function audioNote(m,canRetry=false){
+  let d=document.getElementById('audioNote');
+  if(!d){d=document.createElement('div');d.id='audioNote';
+    d.style.cssText='position:absolute;left:12px;right:12px;bottom:2.5vh;text-align:center;font-size:.78rem;color:#ff8fb0;line-height:1.5;z-index:5';
+    document.getElementById('splash').appendChild(d)}
+  d.textContent=m;
+  if(canRetry){
+    const b=document.createElement('button');b.type='button';b.textContent='অডিও আবার চালান';
+    b.style.cssText='display:block;margin:8px auto 0;padding:9px 16px;border-radius:20px;border:1px solid #f7c948;background:#171321;color:#f7c948;font:inherit';
+    b.onclick=(ev)=>{ev.stopPropagation();playChant()};d.appendChild(b);
+  }
+}
+function playChant(){
+  const a=document.getElementById('bgm');
+  if(!a){audioNote('অডিও ফাইলটি অ্যাপের ফোল্ডারে পাওয়া যায়নি।',true);return;}
+  const old=document.getElementById('audioNote');if(old)old.remove();
+  a.volume=.9;
+  try{a.pause();a.currentTime=0;}catch(e){}
+  a.onerror=()=>audioNote('allahu-akbar.mp3 ফাইলটি লোড হয়নি। ZIP থেকে পুরো salary-app ফোল্ডারটি প্রকাশ করুন।',true);
+  const p=a.play();
+  if(p&&typeof p.catch==='function')p.catch(()=>audioNote('ফোন/ব্রাউজার অডিও চালু করতে দেয়নি। আবার স্পর্শ করে অডিও চালান।',true));
+}
+let introStarted=false;
+function startIntro(){
+  if(introStarted)return;introStarted=true;
+  $('#startHint').classList.add('hidden');
+  playChant();
+  // দ্রুত পরিচিতি: স্বাক্ষর/ছবি-পরিচিতি সর্বোচ্চ ১ সেকেন্ড, মোট ইন্ট্রো প্রায় ৫ সেকেন্ড।
+  const t1=60,t2=1050,t3=2050,t4=4800;
+  setTimeout(()=>$('#ln1').classList.add('show'),t1);
+  setTimeout(()=>$('#ln2').classList.add('show'),t2);
+  setTimeout(()=>$('#ln3').classList.add('show'),t3);
+  setTimeout(()=>$('#ownerCredit').classList.add('show'),t3+650);
+  setTimeout(()=>$('#ownerCredit').classList.remove('show'),t3+1650);
+  setTimeout(()=>{let b=document.querySelector('#splash .enterbtn');if(!b){b=document.createElement('button');b.className='loginbtn enterbtn';b.textContent='প্রবেশ করুন';b.onclick=()=>startApp();$('#splash').appendChild(b)}},t4);
+}
+async function apiCall(path,opts={},token=''){const base=String(window.API_BASE||'').trim().replace(/\/$/,'');if(!base)throw new Error('API সার্ভার ঠিকানা সেট করা হয়নি');const r=await fetch(base+path,{...opts,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{}),...(opts.headers||{})}});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('API error '+r.status));return j}
+function cloudPayload(k){const u=getU(k),profile=u?{...u}:null;if(profile){delete profile.pw;delete profile.password}return{rec:saved(k),day:dayStore(k),fund:store('fund_hist_'+k),profile,idCard:localStorage.getItem('idcard_'+k)||null,photo:localStorage.getItem('photo_'+k)||null}}
+async function cloudSync(k=cur){const token=localStorage.getItem('api_token_'+k);if(!window.API_BASE||!token)return false;await apiCall('/api/sync',{method:'PUT',body:JSON.stringify({payload:cloudPayload(k)})},token);return true}
+async function cloudRestore(k){const token=localStorage.getItem('api_token_'+k);if(!window.API_BASE||!token)return false;const j=await apiCall('/api/restore',{},token),b=j.payload||{};if(Array.isArray(b.rec))put('rec_'+k,b.rec);if(Array.isArray(b.day))put('day_'+k,b.day);if(b.fund)put('fund_hist_'+k,b.fund);if(b.idCard)localStorage.setItem('idcard_'+k,b.idCard);if(b.photo)localStorage.setItem('photo_'+k,b.photo);if(b.profile){const all=custom();all[k]={...(all[k]||{}),...b.profile};put('accts',all)}return true}
+async function doLogin(){
+  const u=$('#lu').value.trim().toLowerCase(),p=$('#lp').value;
+  if(window.API_BASE){try{const j=await apiCall('/api/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})});const k='srv'+j.user.id,profile={...(j.user.profile||{}),id:j.user.employeeCode,user:j.user.username,ename:(j.user.profile||{}).ename||(j.user.profile||{}).name||j.user.username};const all=custom();all[k]=profile;put('accts',all);localStorage.setItem('api_token_'+k,j.token);localStorage.setItem('api_user_id_'+k,String(j.user.id));cloudRestore(k).then(()=>{if(cur===k)show('dash')}).catch(()=>{});if($('#remember')&&$('#remember').checked)sessSave(k);enterApp(k);return}catch(e){const local=allKeys().find(x=>creds(x).user===u&&creds(x).pw===p);if(!local){$('#err').textContent=e.message||'অনলাইন লগইন ব্যর্থ';return}}}
+  const k=allKeys().find(x=>creds(x).user===u);
+  if(!k||creds(k).pw!==p){$('#err').textContent='ইউজারনেম বা পাসওয়ার্ড সঠিক নয়';$('#login').classList.add('shake');setTimeout(()=>$('#login').classList.remove('shake'),400);return}
+  cur=k;$('#err').textContent='';if($('#remember')&&$('#remember').checked)sessSave(k);$('#login').classList.add('vanish');
+  setTimeout(()=>{$('#login').classList.add('hidden');$('#login').classList.remove('vanish');$('#app').classList.remove('hidden');$('#nav').classList.remove('hidden');$('#av').textContent=getU(k).ename[0];show('dash')},900);
+}
+function goLogin(k){
+  $('#sheet').classList.add('hidden');$('#app').classList.add('hidden');$('#nav').classList.add('hidden');
+  cur=null;authTab('l');$('#lu').value=creds(k).user;$('#lp').value='';$('#err').textContent='';
+  $('#login').classList.remove('hidden','vanish');
+}
+function openSwitch(){
+  const s=$('#sheet');
+  s.innerHTML=`<div style="background:var(--card);width:100%;border-radius:28px 28px 0 0;padding:22px" onclick="event.stopPropagation()"><h4>একাউন্ট পরিবর্তন</h4>${allEntries().map(([k,v])=>`<div class="acc" onclick="goLogin('${k}')"><div class="avatar" style="pointer-events:none">${v.ename[0]}</div><div><b>${v.name}</b><div class="muted">${v.desig}</div></div></div>`).join('')}</div>`;
+  s.classList.remove('hidden');
+}
+
+/* ===== PAGES ===== */
+function show(p){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p||(p==='slip'&&b.dataset.p==='dash')));
+  const u=getU(cur),R=recs(cur);let h='';
+  if(p==='dash')h=homeView(u,R);
+  else if(p==='input')h=inputView(u)+totalsCard(u);
+  else if(p==='hist')h=hist(u,R);
+  else if(p==='profile')h=profileView(u);
+  else if(p==='slip')h=slip(u,R.filter(r=>r.bonus!==undefined));
+  $('#main').innerHTML=`<div class="page">${h}</div>`;
+  if(p==='dash')$('#main').insertAdjacentHTML('beforeend',backupCard());
+  if(p==='input')preview();
+  if(p==='hist')calcHistPreview();
+  window.scrollTo(0,0);const nv=$('#nav');if(nv)nv.classList.remove('nav-hidden');lastNavY=0;
+}
+function dash(u,R){if(!R.length)return '<div class="card"><p class="muted">এখনও কোনো মাসের তথ্য নেই। ইতিহাস পেজ থেকে মাসের বেতন ইনপুট করুন।</p></div>';
+  const last=R.at(-1),d=new Date(),left=days(d.getFullYear(),d.getMonth()+1)-d.getDate();
+  const bd=last.bonus!==undefined;
+  return `
+  <div class="card hero">
+    <div class="muted">স্বাগতম</div>
+    <div style="font-size:1.25rem;font-weight:800;margin:4px 0">${u.name}</div>
+    <div class="muted">${u.desig} · ID ${u.id}</div>
+    <div class="big" style="margin-top:16px">${tk(last.pay)}</div>
+    <div class="muted">${lab(last)} — ${last.src==='saved'?'সংরক্ষিত':'প্রাপ্য'}</div>
+  </div>
+  <div class="card"><span class="chip">মাস শেষ হতে ${bn(left)} দিন</span><span class="chip">গ্রেড ${u.grade}</span><span class="chip">${u.dept}</span><span class="chip">কার্য দিন ${u.days} · হাজিরা ${u.present}</span></div>
+  ${bd?`<div class="card">
+    <h4>মোট বেতন — দুই ভাগে</h4>
+    <div class="sub">ভাগ ১ · মোট বেতন</div>
+    ${rw('মোট বেতন',tk(last.sal),'mint')}
+    <div class="sub">ভাগ ২ · সংযোজন</div>
+    ${rw('হাজিরা বোনাস','+ '+tk(last.bonus),'mint')}
+    ${rw('ওভারটাইম','+ '+tk(last.ot),'mint')}
+    ${last.shift?rw('শিফট ভাতা','+ '+tk(last.shift),'mint'):''}
+    <div class="sub">কর্তন</div>
+    ${rw('ভবিষ্যত তহবিল','− '+tk(last.fund),'rose')}
+    ${rw('বাস ভাড়া কর্তন','− '+tk(last.transport),'rose')}
+    <div class="row" style="font-weight:800;font-size:1.05rem;margin-top:6px"><span>মোট প্রদেয়</span><span style="color:var(--gold)">${tk(last.pay)}</span></div>
+  </div>`:''}`;
+}
+function slip(u,S){
+  if(!S.length)return `<div class="card"><h4>পে স্লিপ</h4><p class="muted">বিস্তারিত তথ্যসহ কোনো মাস এখনও নেই। ইতিহাস পেজে "বিস্তারিত হিসাব" মোডে মাস সংরক্ষণ করুন।</p></div>`;
+  if(selIdx>=S.length)selIdx=S.length-1;
+  const r=S[selIdx];
+  const earn=Object.entries(u.e).map(([k,v])=>`<div class="rw"><span>${LBL[k]}</span><b>${bn(v)}</b></div>`).join('')+`<div class="rw"><span>সমন্বয় (মোট বেতন অনুযায়ী)</span><b>${bn(u.adj)}</b></div>`;
+  return `
+  <div class="card noprint">
+    <label class="lbl">ডিজাইন</label><select onchange="slipTheme=this.value;show('slip')">${[['classic','ক্লাসিক'],['modern','মডার্ন নীল'],['minimal','মিনিমাল'],['dark','ডার্ক (গোল্ড)']].map(([v,l])=>`<option value="${v}" ${slipTheme===v?'selected':''}>${l}</option>`).join('')}</select>
+    <label class="lbl" style="margin-top:10px;display:block">মাস নির্বাচন</label>
+    <select onchange="selIdx=this.value;show('slip')">${S.map((x,i)=>`<option value="${i}" ${i==selIdx?'selected':''}>${lab(x)}</option>`).join('')}</select>
+    <button class="loginbtn" style="margin-top:14px" onclick="window.print()">⬇ পে স্লিপ ডাউনলোড (PDF)</button>
+  </div>
+  <div class="slip t-${slipTheme}" id="slipBox">
+    <h3>${u.company}</h3>
+    <p style="text-align:center;margin:4px 0 12px">বেতন রশিদ (Pay Slip) — মাস: ${lab(r)}</p>
+    <div class="two">
+      <div><div class="rw"><span>নাম</span><b>${u.ename}</b></div><div class="rw"><span>কোড নং</span><b>${u.id}</b></div><div class="rw"><span>পদবী</span><b>${u.desig}</b></div></div>
+      <div><div class="rw"><span>বিভাগ</span><b>${u.dept}</b></div><div class="rw"><span>গ্রেড</span><b>${u.grade}</b></div><div class="rw"><span>যোগদান</span><b>${u.doj}</b></div><div class="rw"><span>কার্য দিন / হাজিরা</span><b>${u.days} / ${u.present}</b></div>${u.div?`<div class="rw"><span>Division</span><b>${u.div}</b></div><div class="rw"><span>সেকশন</span><b>${u.sec}</b></div><div class="rw"><span>সাব-সেকশন</span><b>${u.sub}</b></div><div class="rw"><span>ইউনিট/লাইন</span><b>${u.unit}</b></div>`:''}</div>
+    </div>
+    <div class="two" style="margin-top:14px">
+      <div><b>প্রাপ্য মজুরী</b>${earn}<div class="rw tot"><span>মোট বেতন (ভাগ ১)</span><span>${bn(r.sal)}</span></div></div>
+      <div><b>সংযোজন ও কর্তন</b>
+        <div class="rw"><span>হাজিরা বোনাস</span><b>${bn(r.bonus)}</b></div>
+        <div class="rw"><span>ওভারটাইম${r.otRate?` (হার ${bn(r.otRate)})`:''}</span><b>${bn(r.ot)}</b></div>
+        ${r.shift?`<div class="rw"><span>শিফট ভাতা</span><b>${bn(r.shift)}</b></div>`:''}
+        <div class="rw"><span>মোট সংযোজন (ভাগ ২)</span><b>${bn(r.add)}</b></div>
+        <div class="rw"><span>ভবিষ্যত তহবিল জমা</span><b>− ${bn(r.fund)}</b></div>
+        <div class="rw"><span>বাস ভাড়া কর্তন</span><b>− ${bn(r.transport)}</b></div>
+      </div>
+    </div>
+    <div class="rw tot"><span>মোট প্রদেয় টাকা</span><span>${tk(r.pay)}</span></div>
+    <div class="sig"><span>কর্তৃপক্ষ</span><span>শ্রমিকের স্বাক্ষর</span></div>
+  </div>`;
+}
+
+function hist(u,R){
+  const p=pre||{},isPay=pre&&pre.bonus===undefined;
+  const yOpts=[];for(let y=2023;y<=2032;y++)yOpts.push(y);
+  const cy=p.y||vY,cm=p.m||vM;
+  const rows=R.slice().reverse().map(r=>`<tr><td>${lab(r)}</td><td>${r.sal?bn(r.sal):'—'}</td><td>${r.add!==undefined?bn(r.add):'—'}</td><td>${r.ded!==undefined?bn(r.ded):'—'}</td><td><b>${bn(r.pay)}</b></td><td>${otOf(r)}</td><td style="white-space:nowrap"><button class="sb" onclick="editRec(${r.y},${r.m})">সম্পাদনা</button>${r.src==='saved'?`<button class="sb d" onclick="delRec(${r.y},${r.m})">মুছুন</button>`:''}</td></tr>`).join('');
+  const last12=R.slice(-12);
+  return `
+  ${salaryCard(u)}
+  <div class="card"><h4>মাসের বেতন ইনপুট ও সংশোধন</h4>
+    <div class="grid2">
+      <div><span class="lbl">বছর</span><select id="fy">${opt(yOpts,cy)}</select></div>
+      <div><span class="lbl">মাস</span><select id="fm">${opt([1,2,3,4,5,6,7,8,9,10,11,12],cm,x=>MONTHS[x-1])}</select></div>
+      <div style="grid-column:1/3"><span class="lbl">ইনপুট ধরন</span><select id="fmode" onchange="$('#fbd').classList.toggle('hidden',this.value==='pay')">
+        <option value="pay" ${isPay?'selected':''}>শুধু প্রাপ্য টাকা (Excel সংশোধন)</option>
+        <option value="full" ${!isPay&&pre?'selected':''}>বিস্তারিত হিসাব (পে স্লিপসহ)</option></select></div>
+    </div>
+    <div style="margin-top:10px"><span class="lbl">প্রাপ্য টাকা (৳)</span><input class="f" id="fpay" type="number" min="0" value="${isPay?pre.pay:''}"></div>
+    <div id="fbd" class="${isPay?'hidden':''}" style="margin-top:10px"><div class="grid2">
+      <div><span class="lbl">হাজিরা বোনাস</span><input class="f" id="fb" type="number" min="0" value="${p.bonus??0}"></div>
+      <div><span class="lbl">ওভারটাইম (৳)</span><input class="f" id="fo" type="number" min="0" value="${p.ot??0}"></div>
+      <div><span class="lbl">ওভারটাইম হার (৳/ঘণ্টা)</span><input class="f" id="fr" type="number" min="0" step="0.01" value="${p.otRate??''}"></div>
+      <div><span class="lbl">মোট ওভারটাইম ঘণ্টা</span><input class="f" id="fh" type="number" min="0" step="0.5" value="${p.oh??''}"></div>
+      <div><span class="lbl">শিফট ভাতা</span><input class="f" id="fs" type="number" min="0" value="${p.shift??0}"></div>
+      <div><span class="lbl">ভবিষ্যত তহবিল</span><input class="f" id="ff" type="number" min="0" value="${p.fund??0}"></div>
+      <div><span class="lbl">বাস ভাড়া কর্তন</span><input class="f" id="ft" type="number" min="0" value="${p.transport??0}"></div>
+    </div></div>
+    <button class="loginbtn" style="margin-top:14px" onclick="saveMonth()">সংরক্ষণ করুন</button>
+    ${pre?'<button class="btn2" onclick="pre=null;show(\'hist\')">নতুন ইনপুট</button>':''}
+    <div class="err" id="fMsg"></div>
+  </div>
+  <div class="card"><h4>আয়ের ইতিহাস</h4><div class="scroll"><table>
+    <tr><th>মাস</th><th>বেতন</th><th>সংযোজন</th><th>কর্তন</th><th>প্রাপ্য</th><th>ওটি (ঘণ্টা)</th><th></th></tr>${rows}</table></div></div>
+  <div class="card"><h4>মাসিক প্রাপ্য — বার চার্ট (সর্বশেষ ১২ মাস)</h4>${bar(last12.map(r=>r.pay),last12.map(r=>`${bn(r.m)}/${bn(r.y%100)}`))}</div>
+  <div class="card"><h4>প্রবণতা — লাইন চার্ট</h4>${line(last12.map(r=>r.pay),last12.map(r=>`${bn(r.m)}/${bn(r.y%100)}`))}</div>`;
+}
+function editRec(y,m){pre=recs(cur).find(r=>r.y===y&&r.m===m);show('hist');window.scrollTo(0,0)}
+function saveMonth(){
+  const k=cur,g=id=>+($(id).value||0),y=+$('#fy').value,m=+$('#fm').value;
+  let r;
+  if($('#fmode').value==='pay'){r={y,m,pay:g('#fpay')}}
+  else{r={y,m,bonus:g('#fb'),ot:g('#fo'),otRate:g('#fr')||undefined,shift:g('#fs'),fund:g('#ff'),transport:g('#ft')}}
+  r.oh=g('#fh')||undefined;
+  const list=saved(k).filter(x=>!(x.y===y&&x.m===m));list.push(r);
+  if(put('rec_'+k,list)){pre=null;$('#fMsg').style.color='var(--mint)';$('#fMsg').textContent=`${MONTHS[m-1]} ${bn(y)} সংরক্ষিত — প্রাপ্য ${tk(calcR(k,r).pay??r.pay)}`;setTimeout(()=>show('hist'),900)}
+  else{$('#fMsg').style.color='var(--rose)';$('#fMsg').textContent='সংরক্ষণ করা যায়নি'}
+}
+function delRec(y,m){
+  const k=cur;put('rec_'+k,saved(k).filter(x=>!(x.y===y&&x.m===m)));pre=null;show('hist');
+}
+
+/* ===== DAILY ===== */
+function dayStore(k){return store('day_'+k)}
+function dailyCard(u){
+  const k=cur,pfx=`${vY}-${pad(vM)}`,list=dayStore(k).filter(e=>e.d.startsWith(pfx)).sort((a,b)=>a.d.localeCompare(b.d));
+  const rate=otRate(k,{}),tot=list.reduce((a,e)=>({oh:a.oh+e.oh,ti:a.ti+e.ti,ni:a.ni+e.ni,w:a.w+(e.st==='কাজ'?1:0),ab:a.ab+(['অনুপস্থিত','অনুপস্থিতি'].includes(e.st)?1:0),lv:a.lv+(e.st==='ছুটি'?1:0),hol:a.hol+(e.st==='সরকারি ছুটি'?1:0),weekly:a.weekly+(e.st==='সাপ্তাহিক ছুটি'?1:0)}),{oh:0,ti:0,ni:0,w:0,ab:0,lv:0,hol:0,weekly:0});
+  const otAmt=tot.oh*rate;
+  const dOpts=[];for(let d=1;d<=days(vY,vM);d++)dOpts.push(d);
+  const rows=list.map(e=>`<tr><td>${bn(+e.d.slice(8))}</td><td>${e.st}</td><td>${e.sh}</td><td>${e.ot}</td><td>${bn(e.oh)}</td><td>${bn(e.ti)}</td><td>${bn(e.ni)}</td><td><button class="sb d" onclick="delDay('${e.d}')">মুছুন</button></td></tr>`).join('');
+  return `
+  <div class="card"><h4>দৈনিক কাজের রেকর্ড</h4>
+    <div class="grid2">
+      <div><span class="lbl">বছর</span><select onchange="vY=+this.value;show('hist')">${opt([2023,2024,2025,2026,2027,2028],vY)}</select></div>
+      <div><span class="lbl">মাস</span><select onchange="vM=+this.value;show('hist')">${opt([1,2,3,4,5,6,7,8,9,10,11,12],vM,x=>MONTHS[x-1])}</select></div>
+      <div><span class="lbl">তারিখ</span><select id="dd">${opt(dOpts,new Date().getDate())}</select></div>
+      <div><span class="lbl">অবস্থা</span><select id="dst">${opt(DAY_ST,'কাজ')}</select></div>
+      <div><span class="lbl">শিফট</span><select id="dsh">${opt(DAY_SH,'A')}</select></div>
+      <div><span class="lbl">ওভারটাইমের ধরন</span><select id="dot">${opt(DAY_OT,'নেই')}</select></div>
+      <div><span class="lbl">ওভারটাইম ঘণ্টা</span><select id="doh">${opt(DAY_HR,0)}</select></div>
+      <div><span class="lbl">টিফিন</span><select id="dti">${opt([0,22],0)}</select></div>
+      <div><span class="lbl">নাইট বিল</span><select id="dni">${opt([0,45],0)}</select></div>
+    </div>
+    <button class="loginbtn" style="margin-top:14px" onclick="saveDay()">দিনের তথ্য সংরক্ষণ</button>
+    <div class="err" id="dMsg"></div>
+    <div class="sub">${MONTHS[vM-1]} ${bn(vY)} — সারাংশ</div>
+    ${rw('প্রকৃত কাজের দিন',bn(tot.w))+rw('Leave',bn(tot.lv))+rw('সরকারি Holiday',bn(tot.hol))+rw('Friday / সাপ্তাহিক ছুটি',bn(tot.weekly))+rw('অনুপস্থিত',bn(tot.ab))}
+    ${rw('মোট ওভারটাইম ঘণ্টা',bn(tot.oh))+rw(`ওভারটাইম টাকা (ঘণ্টা × ${bn(+rate.toFixed(2))})`,tk(otAmt),'mint')}
+    ${rw('মোট টিফিন',tk(tot.ti))+rw('মোট নাইট বিল',tk(tot.ni))}
+    <button class="btn2" onclick="useOT(${Math.round(otAmt)})">ওভারটাইম টাকা মাসের ফর্মে বসান</button>
+    ${list.length?`<div class="scroll" style="margin-top:12px"><table><tr><th>তারিখ</th><th>অবস্থা</th><th>শিফট</th><th>ওটি</th><th>ঘণ্টা</th><th>টিফিন</th><th>নাইট</th><th></th></tr>${rows}</table></div>`:'<p class="muted" style="margin-top:10px">এই মাসে এখনও কোনো দিনের তথ্য নেই।</p>'}
+  </div>`;
+}
+function saveDay(){
+  const k=cur,d=`${vY}-${pad(vM)}-${pad(+$('#dd').value)}`;
+  const e={d,st:$('#dst').value,sh:$('#dsh').value,ot:$('#dot').value,oh:+$('#doh').value,ti:+$('#dti').value,ni:+$('#dni').value};
+  put('day_'+k,[...dayStore(k).filter(x=>x.d!==d),e]);
+  show('hist');
+}
+function delDay(d){const k=cur;put('day_'+k,dayStore(k).filter(x=>x.d!==d));show('hist')}
+function useOT(v){const el=$('#fo');if(el){el.value=v;const r=$('#fbd');if(r)r.classList.remove('hidden');$('#fmode').value='full';$('#fbd').scrollIntoView({behavior:'smooth'});$('#fMsg').style.color='var(--mint)';$('#fMsg').textContent='ওভারটাইম ফর্মে বসানো হয়েছে। মাস সংরক্ষণ করুন।'}}
+
+/* ===== CHARTS ===== */
+function bar(vals,labs){
+  const W=320,H=170,mx=Math.max(...vals,1),gap=W/vals.length,bw=Math.min(36,gap*0.6);let s='';
+  vals.forEach((v,i)=>{const h=v/mx*(H-50),x=i*gap+(gap-bw)/2;
+    s+=`<rect x="${x}" y="${H-24-h}" width="${bw}" height="${h}" rx="6" fill="url(#gg)"/><text x="${x+bw/2}" y="${H-8}" text-anchor="middle" fill="#8b8b9e" font-size="9">${labs[i]}</text>`});
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%"><defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f7c948"/><stop offset="1" stop-color="#6ef3c4"/></linearGradient></defs>${s}</svg>`;
+}
+function line(vals,labs){
+  const W=320,H=170,mx=Math.max(...vals,1),n=vals.length;
+  const pts=vals.map((v,i)=>[n===1?W/2:20+i*(W-40)/(n-1),H-24-(v/mx)*(H-50)]);
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%"><polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#6ef3c4" stroke-width="3" stroke-linejoin="round"/>${pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#f7c948"/><text x="${p[0]}" y="${H-6}" text-anchor="middle" font-size="9" fill="#8b8b9e">${labs[i]}</text>`).join('')}</svg>`;
+}
+</script>
+<script>
+</script>
+<script>
+/* ===== BACKUP: Google Drive (appDataFolder) + ফাইল এক্সপোর্ট/ইমপোর্ট ===== */
+/* ধাপ: Google Cloud Console থেকে OAuth Client ID (Web application) বানিয়ে নিচের লাইনে বসান */
+const GCID='52535101689-8vokoih7ku1rdbqr63524okoqseue67n.apps.googleusercontent.com';
+const GSCOPE='openid email https://www.googleapis.com/auth/drive.appdata';
+let gTok=null,gExp=0,gTokUser=null,gTokEmail='';
+function clearDriveSession(){gTok=null;gExp=0;gTokUser=null;gTokEmail=''}
+
+function bkData(){const k=cur;return{app:'salary',v:7,user:k,googleEmail:gTokEmail||null,at:new Date().toISOString(),rec:saved(k),day:dayStore(k),fund:store('fund_hist_'+k),profile:(()=>{const u=getU(k);if(!u)return null;const x={...u};delete x.pw;delete x.password;return x})(),idCard:localStorage.getItem('idcard_'+k)||null,photo:localStorage.getItem('photo_'+k)||null}}
+function applyBk(b){
+  if(!b||b.app!=='salary'||!Array.isArray(b.rec))throw new Error('ফাইলটি সঠিক ব্যাকআপ নয়');
+  const expected=String(getU(cur).email||'').toLowerCase(),source=String(b.profile?.email||'').toLowerCase();if(expected&&source&&expected!==source)throw new Error('এই ব্যাকআপটি অন্য ইমেইল/ব্যবহারকারীর। নিরাপত্তার জন্য Restore বন্ধ করা হয়েছে।');
+  if(!confirm('এই অ্যাকাউন্টের বর্তমান তথ্য ব্যাকআপের তথ্য দিয়ে আপডেট হবে। আগে বর্তমান তথ্য Export করে রেখেছেন? Restore চালাবেন?'))return;
+  put('rec_'+cur,b.rec);put('day_'+cur,b.day||[]);if(b.fund)put('fund_hist_'+cur,b.fund);if(b.idCard)localStorage.setItem('idcard_'+cur,b.idCard);if(b.photo)localStorage.setItem('photo_'+cur,b.photo);if(b.profile){const all=custom();all[cur]={...(all[cur]||{}),...b.profile};delete all[cur].pw;put('accts',all);}
+  cloudSync(cur).catch(()=>{});note('তথ্য পুনরুদ্ধার হয়েছে।');show('dash');
+}
+function bkFile(){
+  const b=new Blob([JSON.stringify(bkData(),null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download=`salary-backup-${cur}-${new Date().toISOString().slice(0,10)}.json`;a.click();
+}
+function bkImport(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{try{applyBk(JSON.parse(rd.result))}catch(e){note(e.message||'ফাইল পড়া যায়নি')}};
+  rd.readAsText(f);
+}
+async function verifyDriveIdentity(token){const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+token}});if(!r.ok)throw new Error('Google অ্যাকাউন্ট যাচাই করা যায়নি');const j=await r.json();if(!j.email||j.email_verified!==true)throw new Error('Google ইমেইল যাচাই করা যায়নি');const expected=String(getU(cur).email||'').trim().toLowerCase();if(!expected)throw new Error('প্রোফাইলে আগে ব্যক্তিগত Google ইমেইল যোগ করুন');if(j.email.toLowerCase()!==expected)throw new Error('এই ব্যবহারকারীর নির্ধারিত ইমেইল '+expected+'। Google-এ '+j.email+' নির্বাচিত হয়েছে। সঠিক অ্যাকাউন্ট দিয়ে আবার চেষ্টা করুন।');return j.email.toLowerCase()}
+function gToken(){
+  return new Promise((res,rej)=>{
+    if(gTok&&gTokUser===cur&&Date.now()<gExp)return res(gTok);
+    if(!window.google||!google.accounts)return rej(new Error('Google লোড হয়নি। ইন্টারনেট সংযোগ দেখুন।'));
+    const c=google.accounts.oauth2.initTokenClient({client_id:GCID,scope:GSCOPE,
+      callback:async r=>{if(r.access_token){try{const em=await verifyDriveIdentity(r.access_token);gTok=r.access_token;gExp=Date.now()+(r.expires_in-60)*1000;gTokUser=cur;gTokEmail=em;res(gTok)}catch(e){clearDriveSession();rej(e)}}else rej(new Error('লগইন সম্পন্ন হয়নি'))},
+      error_callback:()=>rej(new Error('লগইন বাতিল হয়েছে'))});
+    c.requestAccessToken({prompt:'select_account'});
+  });
+}
+async function gApi(url,opt={}){
+  const t=await gToken();
+  const r=await fetch(url,{...opt,headers:{Authorization:'Bearer '+t,...(opt.headers||{})}});
+  if(!r.ok)throw new Error('Google Drive ত্রুটি: '+r.status);
+  return r;
+}
+const bkName=()=>`smart-salary-${getU(cur).id}.json`;
+async function gFind(){
+  const q=encodeURIComponent(`name='${bkName()}' and trashed=false`);
+  const r=await gApi(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${q}&fields=files(id,modifiedTime)`);
+  const j=await r.json();return j.files&&j.files[0];
+}
+async function gBackup(){
+  if(GCID.startsWith('PASTE')){bkFile();return}
+  try{
+    await gToken();const body=JSON.stringify(bkData()),f=await gFind();
+    if(f){
+      await gApi(`https://www.googleapis.com/upload/drive/v3/files/${f.id}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body});
+    }else{
+      const bd='salarybk'+Date.now();
+      const meta=JSON.stringify({name:bkName(),parents:['appDataFolder']});
+      const mp=`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${bd}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${bd}--`;
+      await gApi('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Content-Type':`multipart/related; boundary=${bd}`},body:mp});
+    }
+    put('bk_at_'+cur,new Date().toLocaleString('bn-BD'));
+    note('Google Drive-এ ব্যাকআপ সম্পন্ন হয়েছে।');show('dash');
+  }catch(e){note(e.message)}
+}
+async function gRestore(){
+  if(GCID.startsWith('PASTE')){$('#bkFileIn').click();return}
+  try{
+    const f=await gFind();
+    if(!f){note('Google Drive-এ এই একাউন্টের কোনো ব্যাকআপ পাওয়া যায়নি।');return}
+    const r=await gApi(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`);
+    const backup=await r.json();if(String(backup.googleEmail||'').toLowerCase()!==String(getU(cur).email||'').toLowerCase())throw new Error('Drive ব্যাকআপের ইমেইল বর্তমান ব্যবহারকারীর সঙ্গে মেলেনি।');applyBk(backup);
+  }catch(e){note(e.message)}
+}
+function backupCard(){
+  const at=localStorage.getItem('bk_at_'+cur)||'এখনও নেওয়া হয়নি';
+  return `<div class="card"><h4>ব্যাকআপ</h4>
+    <p class="muted" style="margin-bottom:10px">সর্বশেষ ব্যাকআপ: ${at}</p><div class="drive-status">প্রোফাইল ইমেইল: ${String(getU(cur).email||'যোগ করা হয়নি').replaceAll('<','&lt;')}<br>Drive-এ ব্যাকআপ হবে এই ইমেইলের যাচাইকৃত Google অ্যাকাউন্টে।</div>
+    <div class="grid2">
+      <button class="loginbtn" onclick="gBackup()">☁ Google Drive Backup</button>
+      <button class="btn2" style="margin-top:0" onclick="gRestore()">↩ Google Drive Restore</button>
+      <button class="btn2" onclick="bkFile()">📥 ফোনে ব্যাকআপ</button>
+      <button class="btn2" onclick="$('#bkFileIn').click()">📤 ফাইল থেকে Restore</button>
+    </div>
+    <input type="file" id="bkFileIn" accept="application/json" onchange="bkImport(event)" style="display:none">
+    <p class="muted">প্রথমবার Google অ্যাকাউন্ট নির্বাচন ও অনুমতি দিন। অন্য ব্যক্তির Google অ্যাকাউন্ট দিয়ে ব্যাকআপ নেওয়া যাবে না। OAuth Client ID কনফিগার না থাকলে ফোনে JSON ব্যাকআপ ব্যবহার করুন।</p>
+  </div>`;
+}
+
+</script>
+
+
+<script>
+/* ===== AUTH: নতুন হিসাব, লগইন, পুনরুদ্ধার ===== */
+const QS=['আপনার প্রথম স্কুলের নাম কী?','আপনার মায়ের নাম কী?','আপনার জন্মস্থান কোথায়?','আপনার প্রিয় খাবার কী?','আপনার প্রথম কর্মস্থলের নাম কী?'];
+const DEPTS=['Quality Assurance','Quality Control','Production','Cutting','Sewing','Finishing','Store','Admin','অন্যান্য'];
+const fld=(l,inner)=>`<div class="lbox"><label>${l}</label>${inner}</div>`;
+const inp=(id,ph='',type='text')=>`<input id="${id}" type="${type}" placeholder="${ph}">`;
+const sel=(id,arr)=>`<select id="${id}">${arr.map(x=>`<option>${x}</option>`).join('')}</select>`;
+const errBox=()=>`<div class="err" id="err"></div>`;
+function authTab(t){
+  $('#tL').classList.toggle('on',t==='l');$('#tR').classList.toggle('on',t==='r');
+  $('#authBox').innerHTML=t==='l'?loginForm():regForm();
+}
+function loginForm(){return `
+  <form id="lform" autocomplete="on" onsubmit="event.preventDefault();doLogin()" style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px;align-items:center">
+    <div class="lbox" style="width:100%"><label for="lu">User Name</label><input id="lu" name="username" autocomplete="username" placeholder="ইউজারনেম লিখুন"></div>
+    <div class="lbox" style="width:100%"><label for="lp">Password</label><div class="pwrow"><input id="lp" name="password" type="password" autocomplete="current-password" placeholder="পাসওয়ার্ড"><button type="button" class="eye" onclick="const p=$('#lp');p.type=p.type==='password'?'text':'password'">👁</button></div></div>
+    <label style="display:flex;gap:8px;align-items:center;color:var(--mt);font-size:.9rem"><input type="checkbox" id="remember" checked> এই ফোনে মনে রাখুন (৩০ দিন)</label>
+    <button class="loginbtn" type="submit">Login</button>${errBox()}
+    <button type="button" class="forgot" onclick="showRecover()">ইউজারনেম বা পাসওয়ার্ড ভুলে গেছেন?</button>
+  </form>`}
+function regForm(){
+  const gr=Array.from({length:10},(_,i)=>i+1);
+  const dy=Array.from({length:31},(_,i)=>`<option ${i+1===26?'selected':''}>${i+1}</option>`).join('');
+  return `
+  <div class="err" id="err" style="max-width:360px;font-weight:700;min-height:0"></div>
+  ${fld('পূর্ণ নাম',inp('rName','যেমন: আব্দুর রহিম খান'))}
+  ${fld('কোড নং (Employee ID)',inp('rId','যেমন: 012345'))}
+  ${fld('পদবী',inp('rDesig','যেমন: Quality Inspector'))}
+  ${fld('কোম্পানি',inp('rCo','কোম্পানির নাম'))}
+  ${fld('ব্যক্তিগত ইমেইল (Google Drive Backup-এর জন্য)',inp('rEmail','আপনার Gmail / Google account email','email'))}
+  ${fld('অফিস আইডি কার্ডের ছবি (ঐচ্ছিক, পরিষ্কার ছবি)',`<input id="rIdCard" type="file" accept="image/*" style="width:100%">`)}
+  ${fld('বিভাগ',sel('rDept',DEPTS))}
+  ${fld('গ্রেড',`<select id="rGrade">${gr.map(x=>`<option>${x}</option>`).join('')}</select>`)}
+  ${fld('যোগদানের তারিখ',inp('rDoj','','date'))}
+  ${fld('কার্য দিন (মাসে)',`<select id="rDays">${dy}</select>`)}
+  ${fld('মূল বেতন (৳)',inp('rBasic','','number'))}
+  ${fld('বাড়ি ভাড়া ভাতা (৳)',inp('rHouse','','number'))}
+  ${fld('চিকিৎসা ভাতা (৳)',inp('rMed','','number'))}
+  ${fld('যাতায়াত ভাতা (৳)',inp('rTr','','number'))}
+  ${fld('খাদ্য ভাতা (৳)',inp('rFood','','number'))}
+  ${fld('মোট বেতন (স্বয়ংক্রিয়)',`<div id="rTot" style="padding:10px 0;font-weight:800;font-size:1.1rem;color:#16161f">৳ ০</div>`)}
+  ${fld('হাজিরা বোনাস (৳)',inp('rAtt','','number'))}
+  ${fld('শিফটি বোনাস (৳)',inp('rShift','','number'))}
+  ${fld('বাস ভাড়া কর্তন (৳)',inp('rBus','','number'))}
+  ${fld('ভবিষ্যৎ তহবিল (৳)',inp('rFund','','number'))}
+  ${fld('ইউজারনেম (ইংরেজিতে)',inp('rUser','যেমন: rahim01'))}
+  ${fld('পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)',inp('rPw','','password'))}
+  ${fld('পাসওয়ার্ড আবার',inp('rPw2','','password'))}
+  ${fld('পুনরুদ্ধার প্রশ্ন',sel('rQ',QS))}
+  ${fld('উত্তর (ভুলে গেলে লাগবে)',inp('rA','উত্তর লিখুন'))}
+  <button class="loginbtn" onclick="doRegister()">নতুন হিসাব খুলুন</button>`;
+}
+function doRegister(){
+  regNow().catch(e=>showErr('কিছু একটা সমস্যা হয়েছে: '+(e&&e.message||e)));
+}
+function showErr(m){
+  const el=$('#err');
+  if(el){el.textContent=m;el.scrollIntoView({behavior:'smooth',block:'center'})}
+  note(m);
+}
+async function regNow(){
+  const v=id=>$('#'+id).value.trim(),n=id=>+$('#'+id).value||0,E=showErr;
+  const req=[['rName','পূর্ণ নাম'],['rId','কোড নং'],['rDoj','যোগদানের তারিখ'],['rBasic','মূল বেতন'],['rEmail','ব্যক্তিগত ইমেইল'],['rUser','ইউজারনেম'],['rPw','পাসওয়ার্ড'],['rA','পুনরুদ্ধার প্রশ্নের উত্তর']];
+  const miss=req.find(([i])=>!v(i));
+  if(miss)return E(miss[1]+' লিখুন');
+  const user=v('rUser').toLowerCase();
+  if(!/^[a-z0-9._-]{3,}$/.test(user))return E('ইউজারনেম কমপক্ষে ৩ অক্ষরের হতে হবে (ইংরেজি অক্ষর, সংখ্যা, . _ -)');
+  if(allKeys().some(k=>creds(k).user===user))return E('এই ইউজারনেম আগে থেকেই ব্যবহৃত হচ্ছে');
+  if(allKeys().some(k=>getU(k).id===v('rId')))return E('এই কোড নম্বরে ইতিমধ্যে হিসাব আছে');
+  if(allKeys().some(k=>String(getU(k).email||'').toLowerCase()===v('rEmail').toLowerCase()))return E('এই ইমেইল ঠিকানাটি অন্য একটি অ্যাকাউন্টে ব্যবহৃত হচ্ছে');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('rEmail')))return E('সঠিক ইমেইল ঠিকানা লিখুন');
+  if(v('rPw').length<8)return E('পাসওয়ার্ড কমপক্ষে ৮ অক্ষর হতে হবে');
+  if(v('rPw')!==v('rPw2'))return E('পাসওয়ার্ড দুবার মেলেনি');
+  showErr('হিসাব তৈরি হচ্ছে, একটু অপেক্ষা করুন…');
+  try{
+    let key='c'+Date.now();
+    const prof={name:v('rName'),ename:v('rName'),email:v('rEmail').toLowerCase(),id:v('rId'),desig:v('rDesig')||'—',company:v('rCo')||'—',dept:$('#rDept').value,grade:$('#rGrade').value,doj:v('rDoj'),days:n('rDays'),present:n('rDays'),
+      e:{basic:n('rBasic'),house:n('rHouse'),medical:n('rMed'),travel:n('rTr'),food:n('rFood')},adj:0,attB:n('rAtt'),shiftB:n('rShift'),busDed:n('rBus'),fundDed:n('rFund'),hist:[],user,pw:v('rPw')};
+    let remoteAuth=null;if(window.API_BASE){const serverProfile={...prof};delete serverProfile.pw;delete serverProfile.user;remoteAuth=await apiCall('/api/auth/register',{method:'POST',body:JSON.stringify({username:user,employeeCode:v('rId'),password:v('rPw'),email:v('rEmail').toLowerCase(),profile:serverProfile})});key='srv'+remoteAuth.user.id;delete prof.pw;}
+    const all=custom();all[key]=prof;
+    if(!put('accts',all))return E('হিসাব সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ চালু আছে কিনা দেখুন।');
+    if(remoteAuth){localStorage.setItem('api_token_'+key,remoteAuth.token);localStorage.setItem('api_user_id_'+key,String(remoteAuth.user.id));}else put('cred_'+key,{user,pw:v('rPw')});
+    const hA=await sha(v('rA').toLowerCase()),code=genCode(),hC=await sha(normCode(code));
+    put('rq_'+key,{q:$('#rQ').value,h:hA,hc:hC});
+    const cardFile=$('#rIdCard')?.files?.[0];if(cardFile){try{const cardData=await imageFileData(cardFile,1400,.88);localStorage.setItem('idcard_'+key,cardData)}catch(err){note('অ্যাকাউন্ট তৈরি হয়েছে, তবে আইডি কার্ডের ছবি সংরক্ষণ হয়নি। প্রোফাইল থেকে পরে যোগ করুন।')}}
+    if(remoteAuth)await cloudSync(key).catch(()=>{});
+    showCreated(user,code);
+  }catch(e){showErr('কিছু একটা সমস্যা হয়েছে: '+(e.message||e))}
+}
+let pendingUser='';
+function showCreated(user,code){
+  pendingUser=user;
+  $('#tL').classList.remove('on');$('#tR').classList.remove('on');
+  $('#authBox').innerHTML=`<div class="lbox" style="text-align:center">
+      <label>হিসাব খোলা হয়েছে ✓</label>
+      <div style="font-size:1.1rem;font-weight:800;color:#16161f;margin:8px 0">ইউজারনেম: ${user}</div>
+      <label>পুনরুদ্ধার কোড (এখানে একবারই দেখানো হবে)</label>
+      <div style="font-family:monospace;font-size:1.25rem;font-weight:800;letter-spacing:.08em;color:#16161f;margin:8px 0">${code}</div>
+      <div style="font-size:.8rem;color:#444">এটি কাগজে লিখে নিরাপদ জায়গায় রাখুন।</div></div>
+    <button class="loginbtn" onclick="goAfterReg()">লগইন পেজে যান</button>`;
+}
+function goAfterReg(){authTab('l');const el=$('#lu');if(el)el.value=pendingUser}
+let recKey=null;
+
+function note(m){
+  const t=document.createElement('div');t.textContent=m;
+  t.style.cssText='position:fixed;left:50%;bottom:112px;transform:translateX(-50%);background:#16161f;color:#f4f4f8;border:1px solid rgba(246,201,72,.45);padding:14px 18px;border-radius:18px;z-index:99;max-width:88vw;box-shadow:0 12px 32px rgba(0,0,0,.6);font-size:.92rem;line-height:1.5;white-space:pre-line;animation:rise .4s both';
+  document.body.appendChild(t);setTimeout(()=>t.remove(),5000);
+}
+function sha256js(bytes){
+ const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+ let H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+ const l=bytes.length,bits=l*8;
+ const buf=new Uint8Array(((l+9+63)>>6)<<6);
+ buf.set(bytes);buf[l]=0x80;
+ const dv=new DataView(buf.buffer);
+ dv.setUint32(buf.length-4,bits>>>0);dv.setUint32(buf.length-8,Math.floor(bits/4294967296));
+ const rotr=(x,n)=>(x>>>n)|(x<<(32-n));
+ const W=new Array(64);
+ for(let off=0;off<buf.length;off+=64){
+  for(let i=0;i<16;i++)W[i]=dv.getUint32(off+i*4);
+  for(let i=16;i<64;i++){
+   const s0=rotr(W[i-15],7)^rotr(W[i-15],18)^(W[i-15]>>>3);
+   const s1=rotr(W[i-2],17)^rotr(W[i-2],19)^(W[i-2]>>>10);
+   W[i]=(W[i-16]+s0+W[i-7]+s1)|0;
+  }
+  let [a,b,c,d,e,f,g,h]=H;
+  for(let i=0;i<64;i++){
+   const S1=rotr(e,6)^rotr(e,11)^rotr(e,25),ch=(e&f)^(~e&g);
+   const t1=(h+S1+ch+K[i]+W[i])|0;
+   const S0=rotr(a,2)^rotr(a,13)^rotr(a,22),mj=(a&b)^(a&c)^(b&c);
+   const t2=(S0+mj)|0;
+   h=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;
+  }
+  H=[(H[0]+a)|0,(H[1]+b)|0,(H[2]+c)|0,(H[3]+d)|0,(H[4]+e)|0,(H[5]+f)|0,(H[6]+g)|0,(H[7]+h)|0];
+ }
+ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
+}
+async function sha(t){
+  const b=new TextEncoder().encode(t);
+  if(window.crypto&&crypto.subtle){try{const h=await crypto.subtle.digest('SHA-256',b);return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){}}
+  return sha256js(b);
+}
+function normCode(t){return t.toUpperCase().replace(/[^A-Z0-9]/g,'')}
+function genCode(){const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789';const b=crypto.getRandomValues(new Uint8Array(12));let t='';b.forEach(x=>t+=A[x%A.length]);return t.match(/.{4}/g).join('-')}
+function showRecover(){
+  $('#tL').classList.remove('on');$('#tR').classList.remove('on');
+  $('#authBox').innerHTML=`${fld('কোড নং (Employee ID)',inp('vId','কোড নং লিখুন'))}
+    <button class="loginbtn" onclick="recStep1()">পরবর্তী</button>${errBox()}
+    <button class="forgot" onclick="authTab('l')">← লগইনে ফিরুন</button>`;
+}
+function recStep1(){
+  const id=$('#vId').value.trim(),k=allKeys().find(x=>getU(x).id===id);
+  if(!k)return $('#err').textContent='এই কোড নম্বরে কোনো হিসাব পাওয়া যায়নি';
+  let rq=null;try{rq=JSON.parse(localStorage.getItem('rq_'+k))}catch(e){}
+  if(!rq)return $('#err').textContent='এই হিসাবে পুনরুদ্ধার প্রশ্ন নেই। লগইন করে "ইউজারনেম ও পাসওয়ার্ড বদলান" থেকে সেট করুন।';
+  recKey=k;
+  $('#authBox').innerHTML=`<div class="lbox"><label>আপনার পুনরুদ্ধার প্রশ্ন</label><div style="padding:10px 0;color:#16161f;font-weight:600">${rq.q}</div></div>
+    ${fld('উত্তর বা পুনরুদ্ধার কোড',inp('vA','উত্তর বা কোড লিখুন'))}
+    <button class="loginbtn" onclick="recStep2()">যাচাই করুন</button>${errBox()}
+    <button class="forgot" onclick="showRecover()">← ফিরে যান</button>`;
+}
+async function recStep2(){
+  const lk=JSON.parse(localStorage.getItem('lock_'+recKey)||'{"n":0,"until":0}');
+  if(Date.now()<lk.until)return $('#err').textContent='অনেকবার ভুল হয়েছে। '+bn(Math.ceil((lk.until-Date.now())/60000))+' মিনিট পরে আবার চেষ্টা করুন';
+  let rq=null;try{rq=JSON.parse(localStorage.getItem('rq_'+recKey))}catch(e){}
+  const x=$('#vA').value.trim();
+  const hA=await sha(x.toLowerCase()),hC=await sha(normCode(x));
+  const ok=!!rq&&((rq.h&&(hA===rq.h||hC===rq.hc))||(rq.a&&x.toLowerCase()===rq.a));
+  if(!ok){
+    const n=lk.n+1;
+    put('lock_'+recKey,n>=5?{n:0,until:Date.now()+10*60000}:{n,until:0});
+    return $('#err').textContent=n>=5?'৫ বার ভুল হয়েছে। ১০ মিনিট অপেক্ষা করুন':'উত্তর বা পুনরুদ্ধার কোড মিলছে না';
+  }
+  put('lock_'+recKey,{n:0,until:0});
+  $('#authBox').innerHTML=`<div class="lbox"><label>আপনার ইউজারনেম</label><div style="padding:10px 0;color:#16161f;font-weight:700;font-size:1.1rem">${creds(recKey).user}</div></div>
+    ${fld('নতুন পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)',inp('nPw','','password'))}
+    ${fld('নতুন পাসওয়ার্ড আবার',inp('nPw2','','password'))}
+    <button class="loginbtn" onclick="recStep3()">পাসওয়ার্ড বদলান</button>${errBox()}`;
+}
+function recStep3(){
+  const p=$('#nPw').value,p2=$('#nPw2').value;
+  if(p.length<8)return $('#err').textContent='পাসওয়ার্ড কমপক্ষে ৮ অক্ষর হতে হবে';
+  if(p!==p2)return $('#err').textContent='পাসওয়ার্ড দুবার মেলেনি';
+  put('cred_'+recKey,{user:creds(recKey).user,pw:p});
+  note('নতুন পাসওয়ার্ড সংরক্ষিত হয়েছে। এখন লগইন করুন।');authTab('l');
+}
+authTab('l');
+</script>
+
+<script>
+/* ترکیب: বাটনে স্পর্শের ঢেউ (ripple) */
+document.addEventListener('pointerdown',e=>{
+  const b=e.target.closest('button');if(!b||b.disabled)return;
+  const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height);
+  const s=document.createElement('span');s.className='rip';
+  s.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;
+  if(getComputedStyle(b).position==='static')b.style.position='relative';
+  b.style.overflow='hidden';b.appendChild(s);setTimeout(()=>s.remove(),650);
+});
+</script>
+
+<script>
+function donut(parts){
+  const tot=parts.reduce((a,p)=>a+p.v,0)||1,C=2*Math.PI*45;let off=0,s='';
+  parts.forEach(p=>{const len=p.v/tot*C;s+=`<circle r="45" cx="60" cy="60" fill="none" stroke="${p.c}" stroke-width="18" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"/>`;off+=len});
+  return `<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><svg viewBox="0 0 120 120" width="140">${s}</svg><div style="font-size:.85rem">${parts.map(p=>`<div style="margin:4px 0"><span style="color:${p.c}">■</span> ${p.l}: ${tk(+p.v.toFixed(2))}</div>`).join('')}</div></div>`;
+}
+/* ===== v6: হোম সামারি, দৈনিক ইনপুট, ছবি ও সাউন্ড ===== */
+const TIFFIN_OT_MIN=4;      /* ওভারটাইম এত ঘণ্টা বা বেশি হলে টিফিন */
+const TIFFIN_AMT=22;
+const NIGHT_SHIFT='B';      /* এই শিফটে নাইট বিল */
+const NIGHT_AMT=45;
+
+function ratesOf(u){
+  const sal=Object.values(u.e).reduce((a,b)=>a+b,0)+u.adj;
+  return{sal,perDay:sal/30,rate:u.e.basic/208*2};
+}
+function calcPrev(){
+  const oh=+$('#iH').value,sh=$('#iS').value;
+  return{st:'কাজ',oh,sh,ti:oh>=TIFFIN_OT_MIN?TIFFIN_AMT:0,ni:sh===NIGHT_SHIFT?NIGHT_AMT:0};
+}
+function dayCalc(e,perDay,rate){
+  const absent=e.st==='অনুপস্থিত'||e.st==='অনুপস্থিতি';const wage=absent?0:perDay,ot=(+e.oh||0)*rate,ti=+e.ti||0,ni=+e.ni||0;
+  return{wage,ot,ti,ni,tot:wage+ot+ti+ni};
+}
+function monthEntries(k,y,m){
+  return dayStore(k).filter(e=>e.d.startsWith(`${y}-${pad(m)}`)).sort((a,b)=>a.d.localeCompare(b.d));
+}
+function otOf(r){
+  if(r.oh!==undefined)return bn(r.oh);
+  const e=monthEntries(cur,r.y,r.m);
+  return e.length?bn(e.reduce((a,x)=>a+(x.oh||0),0)):'—';
+}
+function homeView(u,R){
+  const t=new Date(),y=t.getFullYear(),m=t.getMonth()+1,td=t.getDate(),dim=days(y,m);
+  const {sal,perDay,rate}=ratesOf(u);
+  const ents=monthEntries(cur,y,m);
+  const calcs=ents.map(e=>({d:+e.d.slice(8),e,...dayCalc(e,perDay,rate)}));
+  const earned=calcs.reduce((a,c)=>a+c.tot,0);
+  const otH=ents.reduce((a,e)=>a+(e.oh||0),0);
+  const wageSum=calcs.reduce((a,c)=>a+c.wage,0),otSum=calcs.reduce((a,c)=>a+c.ot,0),tnSum=calcs.reduce((a,c)=>a+c.ti+c.ni,0);
+  const worked=ents.filter(e=>e.st!=='অনুপস্থিত').length,left=dim-td;
+  const photo=localStorage.getItem('photo_'+cur);
+  const av=photo?`<img src="${photo}" style="width:76px;height:76px;border-radius:50%;object-fit:cover;border:2px solid var(--gold)">`:`<div class="avatar" style="width:76px;height:76px;font-size:1.7rem">${u.ename[0]}</div>`;
+  const vals=[],labs=[];
+  for(let d=1;d<=dim;d++){const c=calcs.find(x=>x.d===d);vals.push(c?c.tot:0);labs.push(d%5===1?bn(d):'')}
+  const tile=(l,v)=>`<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:14px"><div class="muted">${l}</div><div style="font-size:1.25rem;font-weight:800;margin-top:4px">${v}</div></div>`;
+  return `
+  <button class="card hero identity-card" onclick="show('profile')" aria-label="প্রোফাইল খুলুন">
+    ${av}
+    <span style="flex:1;min-width:0"><strong style="display:block;font-size:1.12rem">${u.name}</strong><span class="muted">${u.desig} · ID ${u.id}</span><span class="muted" style="display:block;margin-top:5px">প্রোফাইল ও ব্যক্তিগত তথ্য দেখতে স্পর্শ করুন →</span></span>
+  </button>
+  <div class="muted" style="text-align:right;margin:-6px 4px 12px"><label style="cursor:pointer">📷 প্রোফাইল ছবি পরিবর্তন<input type="file" accept="image/*" onchange="setPhoto(event)" style="display:none"></label></div>
+  <div class="card">
+    <h4>${MONTHS[m-1]} ${bn(y)} — এক নজরে</h4>
+    <div class="grid2" style="gap:10px">
+      ${tile('আজ পর্যন্ত মোট বেতন (ওটিসহ)',tk(+earned.toFixed(2)))}
+      ${tile('এই মাসের ওভারটাইম',bn(otH)+' ঘণ্টা')}
+      ${tile('কাজের দিন (এখন পর্যন্ত)',bn(worked))}
+      ${tile('এই মাসে বাকি দিন',bn(left))}
+    </div>
+    <div class="sub">মাসের অগ্রগতি</div>
+    <div style="height:10px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden"><div style="height:100%;width:${Math.round(td/dim*100)}%;background:linear-gradient(90deg,var(--gold),var(--mint));border-radius:99px"></div></div>
+    <div class="muted" style="margin-top:6px">${bn(td)} / ${bn(dim)} দিন পার হয়েছে</div>
+  </div>
+  <div class="card">
+    <h4>মাসের মোট বেতন</h4>
+    ${rw('মাসিক মোট বেতন (ভাতাসহ)',tk(sal),'mint')}
+    ${rw('দৈনিক মজুরি (মোট ÷ ৩০)',tk(+perDay.toFixed(2)))}
+    ${rw('ওভারটাইমের ঘণ্টার দাম',tk(+rate.toFixed(2))+' / ঘণ্টা')}
+    <div class="row" style="font-weight:800;font-size:1.05rem;margin-top:6px"><span>আজ পর্যন্ত মোট (ওটিসহ)</span><span style="color:var(--gold)">${tk(+earned.toFixed(2))}</span></div>
+  </div>
+  <div class="card">
+    <h4>গ্রাফিক সারাংশ</h4>
+    ${donut([{l:'মূল মজুরি',v:wageSum,c:'#f7c948'},{l:'ওভারটাইম',v:otSum,c:'#ff5d8f'},{l:'টিফিন ও নাইট',v:tnSum,c:'#7aa7ff'}])}
+    <div class="sub" style="margin-top:14px">দৈনিক আয় (এই মাস)</div>
+    ${bar(vals,labs)}
+  </div>
+  <div class="card"><button class="loginbtn" onclick="show('slip')">🧾 পে স্লিপ দেখুন</button></div>`;
+}
+function setPhoto(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{const img=new Image();img.onload=()=>{
+    const sc=160/Math.max(img.width,img.height),c=document.createElement('canvas');
+    c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    try{localStorage.setItem('photo_'+cur,c.toDataURL('image/jpeg',.8))}catch(e){note('ছবি সংরক্ষণ করা যায়নি')}
+    show('dash');
+  };img.src=r.result};
+  r.readAsDataURL(f);
+}
+function inputView(u){
+  const {perDay,rate}=ratesOf(u);
+  const dOpts=[];for(let d=1;d<=days(vY,vM);d++)dOpts.push(d);
+  const t=new Date(),defDay=(t.getFullYear()===vY&&t.getMonth()+1===vM)?t.getDate():1;
+  const ents=monthEntries(cur,vY,vM);
+  const rows=ents.map(e=>{const c=dayCalc(e,perDay,rate);return `<tr><td>${bn(+e.d.slice(8))}</td><td>${e.sh}</td><td>${bn(e.oh||0)}</td><td>${bn(e.ti||0)}</td><td>${bn(e.ni||0)}</td><td><b>${bn(+c.tot.toFixed(2))}</b></td><td><button class="sb d" onclick="delDay('${e.d}')">মুছুন</button></td></tr>`}).join('');
+  return `
+  <div class="card"><h4>প্রতিদিনের ডিউটি ইনপুট</h4>
+    <div class="grid2">
+      <div><span class="lbl">বছর</span><select onchange="vY=+this.value;show('input')">${opt([2025,2026,2027],vY)}</select></div>
+      <div><span class="lbl">মাস</span><select onchange="vM=+this.value;show('input')">${opt([1,2,3,4,5,6,7,8,9,10,11,12],vM,x=>MONTHS[x-1])}</select></div>
+      <div><span class="lbl">তারিখ</span><select id="iD" onchange="preview()">${opt(dOpts,defDay)}</select></div>
+      <div><span class="lbl">শিফট</span><select id="iS" onchange="preview()">${opt(DAY_SH,'A')}</select></div>
+      <div style="grid-column:1/3"><span class="lbl">ওভারটাইম (ঘণ্টা)</span><select id="iH" onchange="preview()">${opt(DAY_HR,0)}</select></div>
+    </div>
+    <div id="prev" class="chip" style="display:block;margin-top:14px;padding:12px 14px;line-height:1.7"></div>
+    <button class="loginbtn" style="margin-top:12px" onclick="saveDay2()">দিনের হিসাব যোগ করুন</button>
+  </div>
+  <div class="card"><h4>${MONTHS[vM-1]} ${bn(vY)} — দিনের তালিকা</h4>
+    ${ents.length?`<div class="scroll"><table><tr><th>তারিখ</th><th>শিফট</th><th>ওটি</th><th>টিফিন</th><th>নাইট</th><th>মোট</th><th></th></tr>${rows}</table></div>`:'<p class="muted">এই মাসে এখনও কোনো দিন যোগ হয়নি।</p>'}
+  </div>`;
+}
+function preview(){
+  const u=getU(cur);if(!u||!$('#iH'))return;
+  const {perDay,rate}=ratesOf(u),c=dayCalc(calcPrev(),perDay,rate),d=+$('#iD').value,wd=weekday(vY,vM,d);
+  $('#prev').innerHTML=`তারিখ: ${bn(d)} ${MONTHS[vM-1]} · <b>${wd}</b><br>মজুরি ${tk(+c.wage.toFixed(2))} + ওভারটাইম ${tk(+c.ot.toFixed(2))} + টিফিন ${tk(c.ti)} + নাইট বিল ${tk(c.ni)}<br><b style="color:var(--gold);font-size:1.05rem">আজকের মোট: ${tk(+c.tot.toFixed(2))}</b>`;
+}
+function saveDay2(){
+  const k=cur,day=+$('#iD').value,d=`${vY}-${pad(vM)}-${pad(day)}`;
+  const e={d,...calcPrev()};
+  if(put('day_'+k,[...dayStore(k).filter(x=>x.d!==d),e])){note('দিনের হিসাব যোগ হয়েছে');show('input')}
+  else note('সংরক্ষণ করা যায়নি');
+}
+
+/* ===== সাউন্ড: নাম দেখানোর সময় মৃদু চাইম ===== */
+function chime(){
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  const ctx=new C();
+  const play=()=>{[[784,0],[988,.2],[1318,.4]].forEach(([f,t])=>{
+    const o=ctx.createOscillator(),g=ctx.createGain(),at=ctx.currentTime+t;
+    o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(.22,at+.03);g.gain.exponentialRampToValueAtTime(.001,at+1.2);
+    o.connect(g);g.connect(ctx.destination);o.start(at);o.stop(at+1.3);
+  })};
+  if(ctx.state==='suspended'){
+    const go=()=>{ctx.resume().then(play);document.removeEventListener('pointerdown',go)};
+    document.addEventListener('pointerdown',go);
+  }else play();
+}
+
+</script>
+
+<script>
+/* ===== v7: স্থায়ী লগইন (সেশন), লগআউট, সাউন্ড, বেতন এডিট ===== */
+let soundDone=false,slipTheme='classic';
+const SESSION_DAYS=30;
+function sessSave(k){put('sess',{k,exp:Date.now()+SESSION_DAYS*864e5})}
+function sessGet(){
+  try{const s=JSON.parse(localStorage.getItem('sess'));if(s&&s.exp>Date.now()&&getU(s.k))return s.k}catch(e){}
+  return null;
+}
+function enterApp(k){
+  if(cur!==k)clearDriveSession();cur=k;
+  $('#login').classList.add('hidden');$('#login').classList.remove('vanish');
+  $('#app').classList.remove('hidden');$('#nav').classList.remove('hidden');
+  $('#av').textContent=getU(k).ename[0];
+  show('dash');
+}
+function startApp(){
+  $('#splash').classList.add('hidden');
+  const k=sessGet();
+  if(k)enterApp(k);else{$('#login').classList.remove('hidden');authTab('l')}
+}
+function logout(){
+  localStorage.removeItem('sess');clearDriveSession();cur=null;
+  $('#sheet').classList.add('hidden');$('#app').classList.add('hidden');$('#nav').classList.add('hidden');
+  $('#login').classList.remove('hidden','vanish');authTab('l');
+}
+function openSwitch(){
+  const s=$('#sheet');
+  s.innerHTML=`<div style="background:var(--card);width:100%;border-radius:28px 28px 0 0;padding:22px" onclick="event.stopPropagation()">
+    <h4>একাউন্ট</h4>
+    ${allEntries().map(([k,v])=>`<div class="acc" onclick="switchTo('${k}')"><div class="avatar" style="pointer-events:none">${v.ename[0]}</div><div><b>${v.name}</b><div class="muted">${v.desig}</div></div></div>`).join('')}
+    <button class="btn2" onclick="addAccount()">+ আরেকটি হিসাব যোগ করুন</button>
+    <button class="btn2" onclick="logout()">লগআউট করুন</button>
+  </div>`;
+  s.classList.remove('hidden');
+}
+function addAccount(){
+  clearDriveSession();$('#sheet').classList.add('hidden');$('#app').classList.add('hidden');$('#nav').classList.add('hidden');
+  cur=null;$('#login').classList.remove('hidden','vanish');authTab('r');
+}
+function switchTo(k){clearDriveSession();localStorage.removeItem('sess');goLogin(k)}
+
+/* শব্দ: প্রথমবার স্পর্শের পরই বাজবে (ব্রাউজারের নিয়ম) */
+function chime(){
+  if(soundDone)return;
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  const ctx=new C();
+  const play=()=>{
+    if(soundDone)return;soundDone=true;
+    [[784,0],[988,.2],[1318,.4]].forEach(([f,t])=>{
+      const o=ctx.createOscillator(),g=ctx.createGain(),at=ctx.currentTime+t;
+      o.type='sine';o.frequency.value=f;
+      g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(.22,at+.03);g.gain.exponentialRampToValueAtTime(.001,at+1.2);
+      o.connect(g);g.connect(ctx.destination);o.start(at);o.stop(at+1.3);
+    });
+    const h=$('#sHint');if(h)h.textContent='🔔';
+  };
+  if(ctx.state==='suspended'){
+    const go=()=>{document.removeEventListener('pointerdown',go);ctx.resume().then(play)};
+    document.addEventListener('pointerdown',go);
+  }else play();
+}
+
+
+/* বেতন কাঠামো এডিট */
+function salaryCard(u){
+  const e=u.e;
+  const fields=[['basic','মূল বেতন'],['house','বাড়ি ভাড়া ভাতা'],['medical','চিকিৎসা ভাতা'],['travel','যাতায়াত ভাতা'],['food','খাদ্য ভাতা'],['adj','সমন্বয় (+/−)']];
+  const tot=Object.values(e).reduce((a,b)=>a+b,0)+u.adj;
+  return `<div class="card"><h4>বেতন কাঠামো (এডিট করুন)</h4>
+    <div class="grid2">${fields.map(([k,l])=>`<div><span class="lbl">${l}</span><input class="f" id="sal_${k}" type="number" step="1" value="${k==='adj'?u.adj:e[k]}"></div>`).join('')}</div>
+    ${rw('বর্তমান মোট বেতন',tk(tot),'mint')}
+    <button class="loginbtn" style="margin-top:12px" onclick="saveSal()">বেতন আপডেট করুন</button>
+    <button class="btn2" onclick="resetSal()">প্রথম মানে ফেরত নিন</button>
+    <p class="muted" style="margin-top:8px">বেতন বদলালে দৈনিক মজুরি, ওভারটাইমের ঘণ্টার দাম ও নতুন পে স্লিপে নতুন হিসাব হবে।</p>
+  </div>`;
+}
+function saveSal(){
+  const g=id=>+$(id).value||0;
+  put('sal_'+cur,{e:{basic:g('#sal_basic'),house:g('#sal_house'),medical:g('#sal_medical'),travel:g('#sal_travel'),food:g('#sal_food')},adj:g('#sal_adj')});
+  note('বেতন আপডেট হয়েছে');show('hist');
+}
+function resetSal(){localStorage.removeItem('sal_'+cur);note('প্রথম মানে ফেরত নেওয়া হয়েছে');show('hist')}
+
+document.addEventListener('input',()=>{const t=$('#rTot');if(!t)return;
+  const x=['rBasic','rHouse','rMed','rTr','rFood'].reduce((a,i)=>a+(+((document.getElementById(i)||{}).value)||0),0);
+  t.textContent='৳ '+bn(x);});
+
+/* ইনপুট পেজ: মাসের যোগফল (Excel সূত্র অনুযায়ী) */
+function totalsCard(u){
+  const {perDay,rate}=ratesOf(u);
+  const ents=monthEntries(cur,vY,vM);
+  let present=0,wage=0,ot=0,oh=0,ti=0,ni=0,abs=0;
+  ents.forEach(e=>{
+    const h=+e.oh||0;
+    if(e.st==='অনুপস্থিতি'||e.st==='অনুপস্থিত'){abs++;return}
+    present++;wage+=perDay;oh+=h;ot+=h*rate;
+    ti+=h===5?22:h>5?100:0;
+    ni+=(e.sh==='B'&&(h===3||h===5))?45:0;
+  });
+  const total=wage+ot+ti+ni;
+  const r=(l,v,c='')=>`<div class="row"><span>${l}</span><span class="${c}">${v}</span></div>`;
+  return `<div class="card"><h4>মাসের যোগফল — ${MONTHS[vM-1]} ${bn(vY)}</h4>
+    ${r('কাজের দিন',bn(present))}${r('অনুপস্থিতি',bn(abs),abs?'rose':'')}
+    ${r('ওভারটাইম ঘণ্টা',bn(oh))}${r('মজুরি',tk(+wage.toFixed(2)))}
+    ${r('ওভারটাইম টাকা',tk(+ot.toFixed(2)))}${r('টিফিন বিল',tk(ti))}${r('নাইট বিল',tk(ni))}
+    <div class="row" style="font-weight:800;font-size:1.05rem;margin-top:6px"><span>মোট বেতন (এই মাস পর্যন্ত)</span><span style="color:var(--gold)">${tk(+total.toFixed(2))}</span></div>
+  </div>`;
+}
+</script>
+
+<style>
+/* polished navigation, inputs and Friday cues */
+nav{background:linear-gradient(110deg,rgba(10,24,43,.96),rgba(20,30,53,.94));border:1px solid rgba(98,230,194,.2);box-shadow:0 -8px 32px #0008}
+nav button.on,.tab.on{background:linear-gradient(110deg,#f6c85f,#62e6c2);box-shadow:0 5px 18px #62e6c233}
+.loginbtn{background:linear-gradient(110deg,#f6c85f,#62e6c2);color:#08121e}
+.card{border-color:rgba(125,164,215,.14)}
+.profileLink:active{color:var(--mint)!important}
+select option.fridayOption{background:#6b2636;color:#fff}
+.fridayTag{display:inline-block;padding:2px 7px;border-radius:8px;background:#7c2e40;color:#ffd8df;font-size:.75rem;font-weight:800}
+.summaryGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.summaryCell{padding:12px;border-radius:14px;background:linear-gradient(145deg,#172944,#101a2b);border:1px solid #344967}
+.summaryCell b{display:block;color:var(--mint);font-size:1.12rem;margin-top:4px}
+.profileField{padding:8px 0;border-bottom:1px solid var(--line)}
+.profileField label{font-size:.76rem;color:var(--mt)}
+.profileField input{margin-top:4px}
+</style>
+<script>
+/* No personal account or salary history is preloaded. Users may import their own private history JSON. */
+const WDAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function weekday(y,m,d){return WDAYS[new Date(y,m-1,d).getDay()]}
+function inputView(u){
+  const {perDay,rate}=ratesOf(u),dOpts=[];for(let d=1;d<=days(vY,vM);d++)dOpts.push(d);
+  const t=new Date(),defDay=(t.getFullYear()===vY&&t.getMonth()+1===vM)?t.getDate():1;
+  const ents=monthEntries(cur,vY,vM);
+  const rows=ents.map(e=>{const c=dayCalc(e,perDay,rate),d=+e.d.slice(8),wd=weekday(vY,vM,d);return `<tr><td>${bn(d)}</td><td>${wd==='Fri'?'<span class="fridayTag">Fri</span>':wd}</td><td>${e.sh||'—'}</td><td>${bn(e.oh||0)}</td><td>${tk(+c.ot.toFixed(2))}</td><td>${tk(e.ti||0)}</td><td>${tk(e.ni||0)}</td><td><b>${tk(+c.tot.toFixed(2))}</b></td><td><button class="sb d" onclick="delDay('${e.d}')">মুছুন</button></td></tr>`}).join('');
+  const dOptions=dOpts.map(d=>{const w=weekday(vY,vM,d),fri=w==='Fri';return `<option value="${d}" ${d===defDay?'selected':''} ${fri?'class="fridayOption" style="background:#7c2e40;color:white"':''}>${fri?'🔴 ':''}${d} — ${w}${fri?' ★':''}</option>`}).join('');
+  return `<div class="card"><h4>প্রতিদিনের ডিউটি ইনপুট</h4><div class="grid2">
+    <div><span class="lbl">বছর</span><select onchange="vY=+this.value;show('input')">${opt([2023,2024,2025,2026,2027,2028],vY)}</select></div>
+    <div><span class="lbl">মাস</span><select onchange="vM=+this.value;show('input')">${opt([1,2,3,4,5,6,7,8,9,10,11,12],vM,x=>MONTHS[x-1])}</select></div>
+    <div><span class="lbl">তারিখ (শুক্রবার লাল)</span><select id="iD" onchange="preview()">${dOptions}</select></div>
+    <div><span class="lbl">শিফট</span><select id="iS" onchange="preview()">${opt(DAY_SH,'A')}</select></div>
+    <div><span class="lbl">ডিউটির অবস্থা</span><select id="iSt" onchange="preview()">${opt(DAY_ST,'কাজ')}</select></div>
+    <div><span class="lbl">ওভারটাইম (ঘণ্টা)</span><select id="iH" onchange="preview()">${opt(DAY_HR,0)}</select></div>
+    <div style="grid-column:1/3"><span class="lbl">বিশেষ ৩ ঘণ্টা ওভারটাইম</span><button class="btn2" type="button" onclick="$('#iH').value='3';preview()">+ ৩ ঘণ্টা নির্বাচন</button></div>
+  </div><div id="prev" class="chip" style="display:block;margin-top:14px;padding:12px 14px;line-height:1.7"></div><button class="loginbtn" style="margin-top:12px" onclick="saveDay2()">দিনের হিসাব যোগ করুন</button></div>
+  <div class="card"><h4>${MONTHS[vM-1]} ${bn(vY)} — দিনের তালিকা</h4>${ents.length?`<div class="scroll"><table><tr><th>তারিখ</th><th>বার</th><th>শিফট</th><th>ওটি ঘণ্টা</th><th>ওটি টাকা</th><th>টিফিন</th><th>নাইট</th><th>মোট</th><th></th></tr>${rows}</table></div>`:'<p class="muted">এই মাসে এখনও কোনো দিনের তথ্য নেই।</p>'}</div>`;
+}
+function calcPrev(){const oh=+$('#iH').value,sh=$('#iS').value,st=$('#iSt')?$('#iSt').value:'কাজ';return{st,oh,sh,ti:oh>=TIFFIN_OT_MIN?TIFFIN_AMT:0,ni:sh===NIGHT_SHIFT?NIGHT_AMT:0}}
+function dayCalc(e,perDay,rate){const absent=e.st==='অনুপস্থিত'||e.st==='অনুপস্থিতি';const wage=absent?0:perDay,ot=(+e.oh||0)*rate,ti=+e.ti||0,ni=+e.ni||0;return{wage,ot,ti,ni,tot:wage+ot+ti+ni}}
+function saveDay2(){const k=cur,day=+$('#iD').value,d=`${vY}-${pad(vM)}-${pad(day)}`,e={d,...calcPrev()};if(put('day_'+k,[...dayStore(k).filter(x=>x.d!==d),e])){cloudSync(k).catch(()=>{});note('দিনের হিসাব যোগ হয়েছে');show('input')}else note('সংরক্ষণ করা যায়নি')}
+function totalsCard(u){
+ const {perDay,rate}=ratesOf(u),ents=monthEntries(cur,vY,vM);let wage=0,ot=0,oh=0,ti=0,ni=0,abs=0,leave=0,weekly=0;const shifts={A:0,B:0,Off:0,General:0},otCats={'৩ ঘণ্টা':0,'৫.৫ ঘণ্টা':0,'৫ ঘণ্টা':0,'অন্যান্য':0};let fridayDays=0;
+ ents.forEach(e=>{const c=dayCalc(e,perDay,rate);wage+=c.wage;ot+=c.ot;oh+=+e.oh||0;ti+=c.ti;ni+=c.ni;if(e.st==='অনুপস্থিত'||e.st==='অনুপস্থিতি')abs++;if(e.st==='ছুটি')leave++;if(e.st==='সাপ্তাহিক ছুটি')weekly++;if(shifts[e.sh]!==undefined&&e.st==='কাজ')shifts[e.sh]++;if(weekday(vY,vM,+e.d.slice(8))==='Fri')fridayDays++;if((+e.oh||0)===3)otCats['৩ ঘণ্টা']++;else if((+e.oh||0)===5.5)otCats['৫.৫ ঘণ্টা']++;else if((+e.oh||0)===5)otCats['৫ ঘণ্টা']++;else if((+e.oh||0)>0)otCats['অন্যান্য']++;});
+ const cell=(l,v)=>`<div class="summaryCell"><span class="muted">${l}</span><b>${bn(v)}</b></div>`;
+ return `<div class="card"><h4>ডিউটি ও ওভারটাইম সারাংশ — ${MONTHS[vM-1]} ${bn(vY)}</h4><div class="summaryGrid">${cell('মোট কাজের দিন',ents.filter(e=>e.st==='কাজ').length)}${cell('A শিফট',shifts.A)}${cell('B শিফট',shifts.B)}${cell('General ডিউটি',shifts.General)}${cell('Off / ছুটি',shifts.Off+leave)}${cell('অনুপস্থিত',abs)}${cell('সাপ্তাহিক ছুটি',weekly)}${cell('শুক্রবারে ডিউটি/এন্ট্রি',fridayDays)}${cell('মোট ওভারটাইম ঘণ্টা',oh)}${cell('৩ ঘণ্টা ওটি-দিন',otCats['৩ ঘণ্টা'])}${cell('৫.৫ ঘণ্টা ওটি-দিন',otCats['৫.৫ ঘণ্টা'])}${cell('৫ ঘণ্টা ওটি-দিন',otCats['৫ ঘণ্টা'])}${cell('অন্যান্য ওটি-দিন',otCats['অন্যান্য'])}</div>
+ ${rw('মোট মূল মজুরি',tk(+wage.toFixed(2)))}${rw('ওভারটাইম হার',tk(+rate.toFixed(2))+' / ঘণ্টা')}${rw('মোট ওভারটাইম টাকা',tk(+ot.toFixed(2)))}${rw('টিফিন বিল',tk(ti))}${rw('নাইট বিল',tk(ni))}<div class="row"><b>মোট প্রাপ্য (দৈনিক হিসাব)</b><b class="mint">${tk(+(wage+ot+ti+ni).toFixed(2))}</b></div></div>`;
+}
+function imageFileData(file,maxDim=1400,quality=.88){return new Promise((resolve,reject)=>{if(!file||!file.type.startsWith('image/'))return reject(new Error('ছবির ফাইল সঠিক নয়'));const rd=new FileReader();rd.onerror=()=>reject(new Error('ছবি পড়া যায়নি'));rd.onload=()=>{const im=new Image();im.onerror=()=>reject(new Error('ছবি খোলা যায়নি'));im.onload=()=>{const sc=Math.min(1,maxDim/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*sc));c.height=Math.max(1,Math.round(im.height*sc));c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality))};im.src=rd.result};rd.readAsDataURL(file)})}
+function saveIdCard(ev){const f=ev.target.files?.[0];if(!f)return;imageFileData(f,1400,.9).then(data=>{try{localStorage.setItem('idcard_'+cur,data);note('অফিস আইডি কার্ড সংরক্ষণ হয়েছে');cloudSync(cur).catch(()=>{});show('profile')}catch(e){note('ছবি বেশি বড়। ছোট/কম রেজুলেশনের ছবি দিয়ে আবার চেষ্টা করুন')}}).catch(e=>note(e.message))}
+function profileView(u){const fields=[['name','নাম'],['ename','ইংরেজি নাম'],['email','ব্যক্তিগত ইমেইল (Google Drive)'],['id','কর্মী আইডি'],['desig','পদবি'],['company','কোম্পানি'],['dept','বিভাগ'],['grade','গ্রেড'],['doj','যোগদানের তারিখ'],['days','মাসিক কার্যদিবস'],['present','উপস্থিতি'],['div','ডিভিশন'],['sec','সেকশন'],['sub','সাব-সেকশন'],['unit','ইউনিট / লাইন']];const idcard=localStorage.getItem('idcard_'+cur);return `<div class="card hero"><h4>আমার প্রোফাইল</h4><p class="muted">এখানে ব্যক্তিগত ও চাকরির তথ্য পরিবর্তন করতে পারবেন।</p></div><div class="card"><h4>অফিস আইডি কার্ড</h4>${idcard?`<img src="${idcard}" alt="Office ID Card" style="width:100%;max-width:520px;max-height:360px;object-fit:contain;background:#fff;border-radius:14px">`:'<p class="muted">এখনও আইডি কার্ডের ছবি যোগ করা হয়নি।</p>'}<label class="lbl" style="display:block;margin-top:12px">ছবি যোগ / পরিবর্তন</label><input type="file" accept="image/*" onchange="saveIdCard(event)" style="width:100%"></div><div class="card"><h4>ব্যক্তিগত ও চাকরির তথ্য</h4><div class="grid2">${fields.map(([k,l])=>`<div class="profileField"><label>${l}</label><input class="f" id="pf_${k}" value="${String(u[k]??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}" ${k==='days'||k==='present'?'type="number"':k==='email'?'type="email"':''}></div>`).join('')}</div><h4 style="margin-top:16px">বেতন কাঠামো</h4><div class="grid2">${[['basic','মূল বেতন'],['house','বাড়ি ভাড়া'],['medical','চিকিৎসা'],['travel','যাতায়াত'],['food','খাদ্য'],['adj','সমন্বয়'],['attB','হাজিরা বোনাস'],['shiftB','শিফট বোনাস'],['busDed','বাস ভাড়া কর্তন'],['fundDed','ভবিষ্যৎ তহবিল কর্তন']].map(([k,l])=>`<div class="profileField"><label>${l}</label><input class="f" type="number" id="pf_${k}" value="${k==='adj'?u.adj:(k in (u.e||{})?((u.e||{})[k]||0):(u[k]||0))}"></div>`).join('')}</div><button class="loginbtn" style="margin-top:14px" onclick="saveProfile()">প্রোফাইল সংরক্ষণ করুন</button></div>`}
+function saveProfile(){const old=getU(cur),obj={...old};['name','ename','email','id','desig','company','dept','grade','doj','days','present','div','sec','sub','unit'].forEach(k=>{const el=$('#pf_'+k);if(el)obj[k]=el.value});obj.days=+obj.days||0;obj.present=+obj.present||0;if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(obj.email||'')){note('Google Drive Backup-এর জন্য সঠিক ব্যক্তিগত ইমেইল যোগ করুন');return}obj.email=obj.email.toLowerCase();const e={};['basic','house','medical','travel','food'].forEach(k=>e[k]=+$('#pf_'+k).value||0);const adj=+$('#pf_adj').value||0;const extras={attB:+$('#pf_attB').value||0,shiftB:+$('#pf_shiftB').value||0,busDed:+$('#pf_busDed').value||0,fundDed:+$('#pf_fundDed').value||0};const all=custom();all[cur]={...all[cur],...obj,e,adj,...extras};if(put('accts',all)){localStorage.removeItem('sal_'+cur);note('প্রোফাইল ও বেতন আপডেট হয়েছে');if(window.API_BASE&&localStorage.getItem('api_token_'+cur))apiCall('/api/profile',{method:'PATCH',body:JSON.stringify({profile:{email:obj.email,name:obj.name,ename:obj.ename,desig:obj.desig,employeeCode:obj.id}})},localStorage.getItem('api_token_'+cur)).catch(e=>note('সার্ভারে প্রোফাইল আপডেট হয়নি: '+e.message));cloudSync(cur).catch(()=>{});show('dash')}else note('সংরক্ষণ করা যায়নি')}
+function hist(u,R){
+  const years=[2023,2024,2025,2026,2027,2028],yr=window.histYear||2026;
+  const records=R.filter(r=>r.y===yr).sort((a,b)=>a.m-b.m);
+  const fund=(store('fund_hist_'+cur)||{})[yr]||[];
+  const base=Object.values(u.e||{}).reduce((a,b)=>a+(+b||0),0)+(+u.adj||0);
+  const rows=Array.from({length:12},(_,i)=>{
+    const r=records.find(x=>x.m===i+1),f=+fund[i]||0;
+    return `<tr><td>${MONTHS[i]}</td><td>${r?tk(r.pay):'—'}</td><td>${f?tk(f):'—'}</td><td>${r&&r.oh?bn(r.oh):'—'}</td><td>${r?`<button class="sb" onclick="editRec(${yr},${i+1})">সম্পাদনা</button>`:'—'}</td></tr>`;
+  }).join('');
+  const total=records.reduce((a,r)=>a+(+r.pay||0),0),ft=fund.reduce((a,x)=>a+(+x||0),0);
+  const p=pre||{};
+  return `${salaryCard(u)}
+  <div class="card"><h4>পূর্ববর্তী মাসের বেতন</h4>
+    <p class="muted">বেতন ও ভাতার প্রাথমিক মান আপনার প্রোফাইল থেকে নেওয়া হয়। মাসভিত্তিক ওভারটাইম ও কর্তন পরিবর্তন করলে মোট প্রাপ্য স্বয়ংক্রিয়ভাবে হিসাব হবে।</p>
+    <div class="grid2" style="margin-top:10px">
+      <div><span class="lbl">বছর</span><select id="fy" onchange="window.histYear=+this.value;show('hist')">${opt(years,yr)}</select></div>
+      <div><span class="lbl">মাস</span><select id="fm" onchange="refreshAutoBonuses()">${opt([1,2,3,4,5,6,7,8,9,10,11,12],p.m||vM,x=>MONTHS[x-1])}</select></div>
+      <div><span class="lbl">মোট বেতন কাঠামো (প্রোফাইল থেকে)</span><input class="f" id="fbase" type="number" value="${base.toFixed(2)}" readonly></div>
+      <div><span class="lbl">হাজিরা বোনাস (স্বয়ংক্রিয়)</span><input class="f" id="fb" type="number" min="0" value="${monthlyAutoBonuses(cur,yr,p.m||vM).attendanceBonus}" readonly></div>
+      <div><span class="lbl">শিফট বোনাস (স্বয়ংক্রিয়)</span><input class="f" id="fs" type="number" min="0" value="${monthlyAutoBonuses(cur,yr,p.m||vM).shiftBonus}" readonly></div>
+      <div><span class="lbl">ভবিষ্যৎ তহবিল কর্তন (৳)</span><input class="f" id="ff" type="number" min="0" value="${p.fund??u.fundDed??0}" oninput="calcHistPreview()"></div>
+      <div><span class="lbl">বাস ভাড়া কর্তন (৳)</span><input class="f" id="ft" type="number" min="0" value="${p.transport??u.busDed??0}" oninput="calcHistPreview()"></div>
+      <div><span class="lbl">ওভারটাইম হার (৳/ঘণ্টা)</span><input class="f" id="fr" type="number" min="0" step=".01" value="${p.otRate??ratesOf(u).rate}" oninput="calcHistPreview()"></div>
+      <div><span class="lbl">ওভারটাইম ঘণ্টা</span><input class="f" id="fh" type="number" min="0" step=".5" value="${p.oh??''}" oninput="calcHistPreview()"></div>
+    </div>
+    <div id="bonusFormulaInfo" class="muted" style="margin-top:10px">${(()=>{const b=monthlyAutoBonuses(cur,yr,p.m||vM);return `Leave ${bn(b.leaveDays)} দিন · প্রকৃত কাজ ${bn(b.dutyDays)} / ২৬ দিন · হাজিরা বোনাস ${tk(b.attendanceBonus)} · শিফট বোনাস ${tk(b.shiftBonus)}`})()}</div><div id="histPreview" class="chip" style="display:block;margin-top:12px;line-height:1.8"></div>
+    <button class="loginbtn" style="margin-top:12px" onclick="saveMonth()">সংরক্ষণ / সংশোধন</button>
+    ${pre?'<button class="btn2" onclick="pre=null;show(\'hist\')">নতুন মাসের ইনপুট</button>':''}
+    <div class="muted" style="margin-top:8px">সূত্র: ওভারটাইম = ঘণ্টা × ঘণ্টাপ্রতি হার। মোট প্রাপ্য = বেতন কাঠামো + হাজিরা বোনাস + শিফট বোনাস + ওভারটাইম − ভবিষ্যৎ তহবিল − বাস ভাড়া।</div>
+  </div>
+  <div class="card"><h4>${bn(yr)} সালের মাসভিত্তিক আয় ও ভবিষ্যৎ তহবিল</h4><div class="scroll"><table><tr><th>মাস</th><th>প্রাপ্ত বেতন</th><th>তহবিল কর্তন</th><th>ওটি ঘণ্টা</th><th></th></tr>${rows}<tr><th>সর্বমোট</th><th>${tk(total)}</th><th>${tk(ft)}</th><th colspan="2"></th></tr></table></div></div>
+  <div class="card"><h4>${bn(yr)} সালের আয় — বার চার্ট</h4>${bar(Array.from({length:12},(_,i)=>records.find(r=>r.m===i+1)?.pay||0),MONTHS.map(x=>x.slice(0,3)))}</div>
+  <div class="card"><h4>${bn(yr)} সালের আয় — লাইন চার্ট</h4>${line(Array.from({length:12},(_,i)=>records.find(r=>r.m===i+1)?.pay||0),MONTHS.map(x=>x.slice(0,3)))}</div>
+  <div class="card"><h4>নিজস্ব পুরোনো ইতিহাস যোগ করুন</h4><p class="muted">ব্যক্তিগত JSON ইতিহাস ফাইল নির্বাচন করুন। কোনো ব্যক্তিগত বেতন তথ্য অ্যাপের সঙ্গে আগে থেকে যুক্ত নেই।</p><input id="historyImportFile" type="file" accept="application/json,.json" onchange="importHistoryFile(event)" style="width:100%;margin-top:8px"></div>`;
+}
+function monthlyAutoBonuses(k,y,m){
+  const entries=monthEntries(k,y,m);
+  const leaveDays=entries.filter(e=>e.st==='ছুটি').length;
+  const dutyDays=entries.filter(e=>e.st==='কাজ').length;
+  const attendanceBonus=leaveDays===1?500:0;
+  const shiftBonus=Math.round((3000/26)*Math.min(dutyDays,26)*100)/100;
+  return {leaveDays,dutyDays,attendanceBonus,shiftBonus};
+}
+function refreshAutoBonuses(){
+  const y=+($('#fy')?.value||vY),m=+($('#fm')?.value||vM),b=monthlyAutoBonuses(cur,y,m);
+  const fb=$('#fb'),fs=$('#fs');if(fb)fb.value=b.attendanceBonus;if(fs)fs.value=b.shiftBonus;
+  const info=$('#bonusFormulaInfo');if(info)info.textContent=`এই মাসের হিসাব: Leave ${bn(b.leaveDays)} দিন · প্রকৃত কাজ ${bn(b.dutyDays)} / ২৬ দিন · হাজিরা বোনাস ${tk(b.attendanceBonus)} · শিফট বোনাস ${tk(b.shiftBonus)}`;
+  calcHistPreview();
+}
+function calcHistPreview(){
+  const g=id=>+($('#'+id)?.value||0),base=g('fbase'),ot=g('fr')*g('fh'),gross=base+g('fb')+g('fs')+ot,net=gross-g('ff')-g('ft');
+  const el=$('#histPreview');if(el)el.innerHTML=`ওভারটাইম প্রাপ্য: <b>${tk(ot)}</b><br>মোট কর্তন: <b>${tk(g('ff')+g('ft'))}</b><br><b style="color:var(--mint)">মোট প্রাপ্য: ${tk(net)}</b>`;
+}
+function importHistoryFile(ev){
+  const f=ev.target.files?.[0];if(!f)return;
+  const rd=new FileReader();rd.onload=()=>{try{
+    const b=JSON.parse(rd.result);if(b.app!=='salary'||b.kind!=='history-import'||!Array.isArray(b.rec))throw new Error('এটি Smart Salary-এর ব্যক্তিগত ইতিহাস ফাইল নয়');
+    const old=saved(cur),seen=new Set(old.map(x=>`${x.y}-${x.m}`)),add=b.rec.filter(x=>!seen.has(`${x.y}-${x.m}`));
+    put('rec_'+cur,[...old,...add]);
+    if(b.fund){const all=store('fund_hist_'+cur)||{};for(const [y,vals] of Object.entries(b.fund)){const dest=all[y]||Array(12).fill(0);(vals||[]).forEach((v,i)=>{if(+v&&!+dest[i])dest[i]=+v});all[y]=dest}put('fund_hist_'+cur,all)}
+    cloudSync(cur).catch(()=>{});note(`${add.length} মাসের পুরোনো ইতিহাস যোগ হয়েছে। আগে থেকে থাকা মাস অপরিবর্তিত আছে।`);show('hist');
+  }catch(e){note(e.message||'ফাইল পড়া যায়নি')}};rd.readAsText(f);ev.target.value='';
+}
+function editRec(y,m){pre=recs(cur).find(r=>r.y===y&&r.m===m);show('hist');window.scrollTo(0,0)}
+function saveMonth(){
+  const k=cur,g=id=>+($('#'+id)?.value||0),y=+$('#fy').value,m=+$('#fm').value,u=getU(k);
+  const base=Object.values(u.e||{}).reduce((a,b)=>a+(+b||0),0)+(+u.adj||0),rate=g('fr'),hours=g('fh'),auto=monthlyAutoBonuses(k,y,m);
+  const r={y,m,sal:base,bonus:auto.attendanceBonus,shift:auto.shiftBonus,leaveDays:auto.leaveDays,dutyDays:auto.dutyDays,fund:g('ff'),transport:g('ft'),otRate:rate,oh:hours,ot:rate*hours};
+  r.add=r.bonus+r.shift+r.ot;r.ded=r.fund+r.transport;r.pay=r.sal+r.add-r.ded;r.src='saved';
+  const list=saved(k).filter(x=>!(x.y===y&&x.m===m));list.push(r);
+  if(put('rec_'+k,list)){pre=null;cloudSync(k).catch(()=>{});note(`${MONTHS[m-1]} ${bn(y)} সংরক্ষিত — প্রাপ্য ${tk(r.pay)}`);show('hist')}
+  else note('সংরক্ষণ করা যায়নি');
+}
+// Account data is created only by the user; no sample or personal records are seeded.
+
+</script>
+
+
+<script>
+// PWA update notification: users can install the new version when published.
+(function(){if(!('serviceWorker' in navigator))return;let refreshing=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(refreshing)return;refreshing=true;location.reload()});window.addEventListener('load',async()=>{try{const reg=await navigator.serviceWorker.register('./sw.js');if(reg.waiting)showUpdate(reg);reg.addEventListener('updatefound',()=>{const w=reg.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)showUpdate(reg)})});setInterval(()=>reg.update().catch(()=>{}),60*60*1000)}catch(e){}});function showUpdate(reg){if(document.getElementById('appUpdate'))return;const b=document.createElement('button');b.id='appUpdate';b.textContent='নতুন আপডেট এসেছে — আপডেট করুন';b.style.cssText='position:fixed;z-index:9999;left:12px;right:12px;bottom:16px;padding:14px;border:0;border-radius:16px;background:linear-gradient(110deg,#f6c85f,#62e6c2);color:#08121e;font-weight:800;box-shadow:0 8px 28px #0008';b.onclick=()=>{if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});else location.reload()};document.body.appendChild(b)}})();
+</script>
+
+</body>
+</html>
